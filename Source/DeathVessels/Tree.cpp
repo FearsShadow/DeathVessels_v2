@@ -58,6 +58,7 @@ void ATree::MulticastTreePhysics_Implementation()
 float ATree::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
 {
     //checks if hatchet is the one doing the damage
+	//tree
 	const auto* IsHatchetDamaging = Cast<AHatchet>(DamageCauser);
 	if(IsHatchetDamaging)
 	{
