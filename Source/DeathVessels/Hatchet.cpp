@@ -17,7 +17,8 @@ AHatchet::AHatchet()
 void AHatchet::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	MultiplayerTreeCheck = 0;
 	
 	
 }
@@ -42,40 +43,50 @@ void AHatchet::ServerSwing_Implementation(class AController* Pawn)
 		End = (Rotation.Vector() * AxeSwingDistance + Location);
 	
 		TraceParams.AddIgnoredActor(GetOwner());
+		TraceParams.AddIgnoredActor(this);
 		
 		UKismetSystemLibrary::DrawDebugLine(GetWorld(), Location, End, FLinearColor::Red, 10, 20);
-		bool AxeHit = GetWorld()->LineTraceSingleByChannel(OutHit, Location, End, ECC_Visibility, TraceParams);
+		bool AxeHit = GetWorld()->LineTraceSingleByChannel(OutHit, Location, End, ECC_GameTraceChannel3, TraceParams);
 		
 		if(AxeHit)
 		{
-			// if(OutHit.GetActor() != nullptr)
-			// {
-				// if(i == 0)
-				// {
-				// 	Tree = GetWorld()->SpawnActor<ATree>(TreeClass);
-				// 	Tree->SetActorLocation(OutHit.GetActor()->GetActorLocation());
-				// 	Tree->SetOwner(this);
-				// 	i = 1;
-				// }
+			UE_LOG(LogTemp, Warning, TEXT("gzere"))
+				//set a bool for it being se
+				
+				if(Tree == nullptr)
+				{
+					Tree = GetWorld()->SpawnActor<ATree>(TreeClass);
+					Tree->SetActorLocation(OutHit.GetActor()->GetActorLocation());
+					Tree->SetOwner(this);
+					//error
+					
+					MulticastSwing(Pawn, OutHit.GetActor());
+					
+					
+					UE_LOG(LogTemp, Warning, TEXT("Here"))
+				}
+				
+				if(Tree != nullptr)
+				{
 
-				FPointDamageEvent DamageEvent(DamageAmount, OutHit, -Rotation.Vector(), nullptr);
-				
-				if(OutHit.GetComponent()->GetCollisionObjectType() == ECC_GameTraceChannel3)
-				{
-					OutHit.GetActor()->Destroy();
+					FPointDamageEvent DamageEvent(DamageAmount, OutHit, -Rotation.Vector(), nullptr);
+					Tree->TakeDamage(DamageAmount, DamageEvent, Pawn, this);
+					
+					UE_LOG(LogTemp, Warning, TEXT("tree %f"), MultiplayerTreeCheck)
+				//store a value for the tree on the actual health as if you don't when some player switches health resets
 				}
-				else
-				{
-					UE_LOG(LogTemp, Warning, TEXT("zgg"))
-				}
-				
-				//Tree->TakeDamage(DamageAmount, DamageEvent, Pawn, this);
-				
-	
-				//UE_LOG(LogTemp, Warning, TEXT("%s"), *OutHit.GetActor()->GetName())
-			//}
 		}
 	}
 	
 }
 
+void AHatchet::MulticastSwing_Implementation(AController * Pawn, AActor* HitActor)
+{
+	if(HitActor != nullptr)
+	{
+		HitActor->Destroy();	
+		//get health before
+		
+	}
+		
+}

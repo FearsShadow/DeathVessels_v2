@@ -22,11 +22,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCapsuleComponent* Capsule;
 
-
+	UPROPERTY(EditAnywhere, Category = "Confing")
+	float TreeHealth;
 
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
-
+	float GetTreeHealth();
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,7 +40,6 @@ private:
 	UFUNCTION(Server, Unreliable)
 	void ServerTreePhysics();
 
-	UPROPERTY(EditAnywhere, Category = "Confing")
-	float TreeHealth;
+	
 
 };

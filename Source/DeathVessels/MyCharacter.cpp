@@ -32,7 +32,11 @@ void AMyCharacter::BeginPlay()
 	PlayerCapsule = this->GetCapsuleComponent();
 	PlayerCapsule->GetScaledCapsuleSize(OutRadius, OutHalfHeight);
 	
-
+	if(Waves != nullptr)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), Waves, FVector(0,0,0));
+	}
+		
 	
 
 	//need a better check here for ai
@@ -44,8 +48,7 @@ void AMyCharacter::BeginPlay()
 	// }
 
 	TraceParams.AddIgnoredActor(this);
-	TraceParams.AddIgnoredActor(GetOwner());
-
+	
 	// 100 times scale of object
 	FloorSnapLocation.Add(FVector(-350, 0, 0));
 	FloorSnapLocation.Add(FVector(350, 0, 0));
@@ -412,8 +415,10 @@ void AMyCharacter::LeftClick()
 {
 	if (!IsAR && IsHatchet)
 	{
+		
 		if(!HasAuthority() && Hatchet != nullptr)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Hatchet"))
 			ServerLeftClick();
 		}
 		else if(Hatchet != nullptr)

@@ -14,15 +14,18 @@ class DEATHVESSELS_API AHatchet : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AHatchet();
-	
 
+	
+	float MultiplayerTreeCheck;
 
 	UFUNCTION(Server, Unreliable)
 	void ServerSwing(AController * Pawn);
 
-
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastSwing(AController * Pawn, AActor* HitActor);
 
 	virtual void Tick(float DeltaTime) override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -35,7 +38,8 @@ private:
 	FRotator Rotation;
 	FVector End;
 
-	int i = 0;
+
+
 
 	ATree * Tree;
 

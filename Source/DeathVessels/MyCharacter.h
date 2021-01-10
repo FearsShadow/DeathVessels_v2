@@ -255,7 +255,8 @@ private:
 	void MayReload();
 	void CanFire();
 
-	
+	UPROPERTY(EditAnywhere, Category = "Config")
+	USoundBase* Waves;
 	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AAssaultRifle> GunClass;

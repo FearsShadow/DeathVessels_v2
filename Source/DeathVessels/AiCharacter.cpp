@@ -6,6 +6,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "MyCharacter.h"
 
+
+// the normal player is somehow being considered an ai
 void AAiCharacter::BeginPlay()
 {
     Super::BeginPlay();

@@ -40,10 +40,10 @@ void ATree::Tick(float DeltaTime)
 
 }
 
+
 void ATree::ServerTreePhysics_Implementation()
 {
 	Capsule->SetSimulatePhysics(true);
-	
 	UE_LOG(LogTemp, Warning, TEXT("server"))
 	MulticastTreePhysics();
 }
@@ -51,14 +51,12 @@ void ATree::ServerTreePhysics_Implementation()
 void ATree::MulticastTreePhysics_Implementation()
 {
 	Capsule->SetSimulatePhysics(true);
-	
 	UE_LOG(LogTemp, Warning, TEXT("multi"))
 }
 
 float ATree::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
 {
     //checks if hatchet is the one doing the damage
-	//tree
 	const auto* IsHatchetDamaging = Cast<AHatchet>(DamageCauser);
 	if(IsHatchetDamaging)
 	{
@@ -87,4 +85,9 @@ float ATree::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEve
 	{
 		return 0;
 	}
+}
+
+float ATree::GetTreeHealth()
+{
+	return TreeHealth;
 }
