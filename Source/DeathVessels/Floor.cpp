@@ -38,16 +38,24 @@ void AFloor::MaterialGreen()
 }
 void AFloor::MaterialRed()
 {
-	FloorBase->SetMaterial(0, Red);
+	if(FloorBase != nullptr)
+	{
+		FloorBase->SetMaterial(0, Red);
+	}
+
 }
 
 void AFloor::BlockDisplay()
 {
+
 	FloorBase->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
 }
 void AFloor::OverlapDisplay()
 {
-	FloorBase->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);	
+	if(FloorBase != nullptr)
+	{
+		FloorBase->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);	
+	}
 }
 
 

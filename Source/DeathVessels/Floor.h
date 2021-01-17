@@ -34,6 +34,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
+	
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* FloorBase;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -41,8 +44,6 @@ protected:
 private:
 	float FloorHealth = 100;
 
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* FloorBase;
 
 	UPROPERTY(EditAnywhere, Category = "Materials")
 	UMaterialInterface* Green;

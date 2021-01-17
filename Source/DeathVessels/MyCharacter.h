@@ -183,11 +183,12 @@ private:
 //building system
 
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum);
+
+	UFUNCTION(Server, Reliable)
+	void ServerFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, AActor* FloorActor , int32 y);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum);
+	void MulticastFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, int32 y);
 
 	void FindPlacementLocation();
 
@@ -204,6 +205,8 @@ private:
 	void SwitchDown();
 
 	void BuildSystem(FVector PlacementLocation);
+	
+	
 
 //other	
 	float OutRadius;
@@ -216,12 +219,13 @@ private:
 	bool TurnOffCrouch;
 	bool StartCrouch = true;
 
-	bool ServerRotate = false;
-	bool AllowedBlock = false;
+	
+	
 	bool AllowedPlacement = false;
 	
 	int32 BuildItemNum = 0;
 	int32 ValueIncreaser = 1;
+	int32 z = 0;
 
 	int32 CubeIncreaser = 0;
 	//
