@@ -41,6 +41,22 @@ class DEATHVESSELS_API AMyCharacter : public ACharacter
 
 public:	
 
+	UFUNCTION(BlueprintCallable)
+	void BP_FindPlacementLocation(int32 BuildingPiece);
+
+	UFUNCTION(BlueprintCallable)
+	void BP_BuildKit(int32 BuildingPiece);
+
+	UFUNCTION(BlueprintCallable)
+	void BP_BuildMenu(int32 BuildingPiece);
+
+	UFUNCTION(BlueprintCallable)
+	int32 BP_SwitchUp(int32 BuildingPiece);
+
+	UFUNCTION(BlueprintCallable)
+	int32 BP_SwitchDown(int32 BuildingPiece);
+
+
 	AMyCharacter();
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -182,7 +198,11 @@ private:
 
 //building system
 
+	UFUNCTION(Server, Unreliable)
+	void ServerSwitchUp(int32 BuildingPiece);
 
+	UFUNCTION(Server, Unreliable)
+	void ServerSwitchDown(int32 BuildingPiece);
 
 	UFUNCTION(Server, Reliable)
 	void ServerFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, AActor* FloorActor , int32 y);
@@ -190,23 +210,6 @@ private:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, int32 y);
 
-	void FindPlacementLocation();
-
-	void BuildMenu();
-
-	UFUNCTION(Server, Unreliable)
-	void ServerSwitchUp();
-
-	void SwitchUp();
-
-	UFUNCTION(Server, Unreliable)
-	void ServerSwitchDown();
-
-	void SwitchDown();
-
-	void BuildSystem(FVector PlacementLocation);
-	
-	
 
 //other	
 	float OutRadius;
@@ -223,7 +226,6 @@ private:
 	
 	bool AllowedPlacement = false;
 	
-	int32 BuildItemNum = 0;
 	int32 ValueIncreaser = 1;
 	int32 z = 0;
 

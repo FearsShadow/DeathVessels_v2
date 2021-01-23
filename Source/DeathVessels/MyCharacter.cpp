@@ -8,6 +8,10 @@
 #include "Components/CapsuleComponent.h"
 #include "InteractionComponent.h"
 #include "Net/UnrealNetwork.h"
+
+
+#include "Kismet/KismetSystemLibrary.h"
+
 //
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -105,10 +109,10 @@ void AMyCharacter::Tick(float DeltaTime)
 		}
 		Handle->SetTargetLocationAndRotation(LineTraceEnd, PlacementRotation);
 	}
-	if(AllowBuilding)
-	{
-		BuildSystem(LineTraceEnd);
-	}
+	// if(AllowBuilding)
+	// {
+	// 	BuildSystem(LineTraceEnd);
+	// }
 	//interactionsystem
 	PerformInteractionCheck();
 }
@@ -138,9 +142,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompone
 	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &AMyCharacter::BeginInteract);
 	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Released, this, &AMyCharacter::EndInteract);
 
-	PlayerInputComponent->BindAction(TEXT("BuildMenu"), EInputEvent::IE_Pressed, this, &AMyCharacter::BuildMenu);
-	PlayerInputComponent->BindAction(TEXT("SwitchF"), EInputEvent::IE_Pressed, this, &AMyCharacter::SwitchUp);
-	PlayerInputComponent->BindAction(TEXT("SwitchB"), EInputEvent::IE_Pressed, this, &AMyCharacter::SwitchDown);
+	//PlayerInputComponent->BindAction(TEXT("BuildMenu"), EInputEvent::IE_Pressed, this, &AMyCharacter::BuildMenu);
 
 	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &AMyCharacter::Fire);
 	PlayerInputComponent->BindAction(TEXT("LeftClick"), EInputEvent::IE_Pressed, this, &AMyCharacter::LeftClick);
@@ -428,11 +430,7 @@ void AMyCharacter::LeftClick()
 			UE_LOG(LogTemp, Error, TEXT("Hatchet == nullptr"))
 		}
 	}
-	else if (!IsAR && !IsHatchet && AllowBuilding && AllowedPlacement)
-	{
-		//I need to reduce the strain perferabbly not running the linetrace in tick
-		FindPlacementLocation();
-	}
+	
 	else if (!IsAR && !IsHatchet)
 	{
 		ReleaseDrop();
@@ -683,18 +681,22 @@ void AMyCharacter::CanFire()
 
 //maybe needs to be bool
 
-
 //set for multiplayer from down here
-void AMyCharacter::FindPlacementLocation()
+//perfect for system with bp just needs to be called upon
+void AMyCharacter::BP_FindPlacementLocation(int32 BuildingPiece)
 {
 	//input function ran off leftclick
 	if(!HasAuthority())
 	{	
 		
-		if(OutHit.GetActor() != nullptr)
+		if(OutHit.GetActor() != nullptr && AllowedPlacement)
 		{
-			ServerFindPlacementLocation(Floor->GetActorLocation(), Floor->GetActorRotation(), BuildItemNum, OutHit.GetActor(), z);
+			
+			ServerFindPlacementLocation(Floor->GetActorLocation(), Floor->GetActorRotation(), BuildingPiece, OutHit.GetActor(), z);
 			if(z == 0)
+			{
+				z++;
+			}
 			{
 				z++;
  			}
@@ -722,6 +724,7 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(FVector Client,
 		if(BuildObjectNum == 0 )
 		{
 			Floor->SetActorScale3D(BuildingTypes[BuildObjectNum] + FVector(0,0, 0.5));
+			
 		}
 		else
 		{
@@ -733,188 +736,126 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(FVector Client,
 }
 
 
-void AMyCharacter::BuildMenu()
+void AMyCharacter::BP_BuildMenu(int32 BuildingPiece)
 {
-	if (!AllowBuilding)
-	{
-		Floor = GetWorld()->SpawnActor<AFloor>(FloorClass);
-		Floor->SetActorScale3D(BuildingTypes[BuildItemNum]);
-		AllowBuilding = true;
-	}
-	else
-	{
-		Floor->Destroy();
-		AllowBuilding = false;
-	}
-}
-
-void AMyCharacter::ServerSwitchUp_Implementation()
-{
-	if(BuildItemNum < 2)
-	{
-		++BuildItemNum;
-	}
-	SwitchUp();
 	
+	Floor = GetWorld()->SpawnActor<AFloor>(FloorClass);
+	Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
+	Floor->Overlap();
+	AllowBuilding = true;
+	AllowedPlacement = false;
 }
-void AMyCharacter::SwitchUp()
-{	
-	if(!HasAuthority())
+void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
+{
+	//BuildingPiece 0 is floors && roofs
+
+	if(Floor == nullptr){return;}
+
+	TraceParams.AddIgnoredActor(Floor);
+	UE_LOG(LogTemp, Warning, TEXT("%i"), BuildingPiece)
+	bool BuildingSnap = GetWorld()->LineTraceSingleByChannel(OutHit, PlacementLocation, LineTraceEnd, ECollisionChannel::ECC_GameTraceChannel1, TraceParams);
+	if(BuildingSnap == false)
 	{
-		ServerSwitchUp();
+		GetWorld()->LineTraceSingleByChannel(OutHit, PlacementLocation, LineTraceEnd, ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
 	}
-	if (AllowBuilding && BuildItemNum < 2)
+
+	if(OutHit.GetActor() == nullptr)
 	{
-		++BuildItemNum;
-		Floor->SetActorScale3D(BuildingTypes[BuildItemNum]);
-		AllowedPlacement = false;
+		Floor->SetActorLocation(LineTraceEnd + FVector(0, 0, 50));
 		Floor->MaterialRed();
 	}
-}
-
-void AMyCharacter::ServerSwitchDown_Implementation()
-{
-	if(BuildItemNum >= 1)
+	else if(OutHit.GetActor() != nullptr)
 	{
-		--BuildItemNum;
-	}
-	SwitchDown();
-}
-void AMyCharacter::SwitchDown()
-{
-	if(!HasAuthority())
-	{
-		ServerSwitchDown();
-	}
-	if (AllowBuilding && BuildItemNum >= 1)
-	{
-		--BuildItemNum;
-		Floor->SetActorScale3D(BuildingTypes[BuildItemNum]);
-		AllowedPlacement = false;
-		Floor->MaterialRed();
-	}
-}
-
-
-
-void AMyCharacter::BuildSystem(FVector PlacementEnd)
-{
-	// is all the logic necessary in tick
-	if (AllowBuilding && IsAR == false && IsHatchet == false && !HasAuthority() && Floor != nullptr)
-	{
-		bool BuildingSnap = GetWorld()->LineTraceSingleByChannel(OutHit, PlacementLocation, PlacementEnd, ECollisionChannel::ECC_GameTraceChannel1, TraceParams);
-
-		if(BuildingSnap == false)
+		Floor->OverlapTrace();
+		if(BuildingPiece == 0 && BuildingSnap == false)
 		{
-			GetWorld()->LineTraceSingleByChannel(OutHit, PlacementLocation, PlacementEnd, ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
-		}
-
-		if (OutHit.GetActor() == nullptr)
-		{
-			AllowedPlacement = false;
-			Floor->SetActorLocation(PlacementEnd + FVector(0, 0, 50));
-			Floor->MaterialRed();
-		}
-		
-		else if (OutHit.GetActor() != nullptr )
-		{
+			//is this trace needed?
+			bool FloorCheck = GetWorld()->LineTraceSingleByChannel(CubeHit, Floor->GetActorLocation() + FVector(0, 0, 35), (Floor->GetActorLocation() + FVector(0, 0, 35) + FRotator(-90, 0,0).Vector() * 140), ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
 			
-			// placing floor
-			Floor->OverlapTrace();
-			if (!BuildingSnap && BuildItemNum == 0)
+			if (FloorCheck)
 			{
-				
-				FVector FloorStart = Floor->GetActorLocation() + FVector(0, 0, 35);
-				bool FloorCheck = GetWorld()->LineTraceSingleByChannel(CubeHit, FloorStart, (FloorStart + FRotator(-90, 0,0).Vector() * 140), ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
-				
-				if (FloorCheck)
-				{
-					FVector Start = Floor->GetActorLocation() - FVector(0,0, 15);
+					FVector CubeStart = Floor->GetActorLocation() - FVector(0,0, 15);
 
-						bool CubeTrace1 = GetWorld()->LineTraceSingleByChannel(CubeHit, Start, (Start + FRotator(0, 135,0).Vector() * 300), ECollisionChannel::ECC_GameTraceChannel1, TraceParams);
-						bool CubeTrace2 = GetWorld()->LineTraceSingleByChannel(CubeHit, Start, (Start + FRotator(0, 45,0).Vector() * 300), ECollisionChannel::ECC_GameTraceChannel1, TraceParams);
-						bool CubeTrace3 = GetWorld()->LineTraceSingleByChannel(CubeHit, Start, (Start + FRotator(0, -135,0).Vector() * 300), ECollisionChannel::ECC_GameTraceChannel1, TraceParams);
-						bool CubeTrace4 = GetWorld()->LineTraceSingleByChannel(CubeHit, Start, (Start + FRotator(0, -45,0).Vector() * 300), ECollisionChannel::ECC_GameTraceChannel1, TraceParams);
+					bool CubeTrace1 = GetWorld()->LineTraceSingleByChannel(CubeHit, CubeStart, (CubeStart + FRotator(0, 135,0).Vector() * 300), ECollisionChannel::ECC_GameTraceChannel1, TraceParams);
+					bool CubeTrace2 = GetWorld()->LineTraceSingleByChannel(CubeHit, CubeStart, (CubeStart + FRotator(0, 45,0).Vector() * 300), ECollisionChannel::ECC_GameTraceChannel1, TraceParams);
+					bool CubeTrace3 = GetWorld()->LineTraceSingleByChannel(CubeHit, CubeStart, (CubeStart + FRotator(0, -135,0).Vector() * 300), ECollisionChannel::ECC_GameTraceChannel1, TraceParams);
+					bool CubeTrace4 = GetWorld()->LineTraceSingleByChannel(CubeHit, CubeStart, (CubeStart + FRotator(0, -45,0).Vector() * 300), ECollisionChannel::ECC_GameTraceChannel1, TraceParams);
 
-						if(CubeTrace1 || CubeTrace2 || CubeTrace3 || CubeTrace4)
-						{	
-							Floor->MaterialRed();
-							AllowedPlacement = false;
-						}
-						else
-						{
-							Floor->SetActorLocation(PlacementEnd + FVector(0, 0, 50));
-							Floor->MaterialGreen();
-							AllowedPlacement = true;
-						}
-				}
-			}
-			//for walls and floor snapping
-			if(BuildingSnap)
-			{	
-				
-				Floor->BlockTrace();
-				Floor->MaterialGreen();
-				Floor->OverlapDisplay();
-				float ShortestDistance = FVector::Distance(PlacementEnd, FloorSnapLocation[0] + OutHit.GetActor()->GetActorLocation());
-				float ShortestDistanceRoof = FVector::Distance(GetOwner()->GetActorLocation(), RoofSnapLocation[0] + OutHit.GetActor()->GetActorLocation());
-				int32 IndexOfShortest = 0;
-				
-				//Floor only
-				if (BuildItemNum == 0 )
-				{
-					
-					for (int i = 1; i < FloorSnapLocation.Num(); i++)
-					{
-						if (FVector::Distance(PlacementEnd, FloorSnapLocation[i] + OutHit.GetActor()->GetActorLocation()) < ShortestDistance)
-						{
-							ShortestDistance = FVector::Distance(PlacementEnd, FloorSnapLocation[i] + OutHit.GetActor()->GetActorLocation());
-							IndexOfShortest = i;
-						}
-					}
-
-					if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[0].X)
-					{
-						Floor->OverlapTrace();
-
-						Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation()  + FloorSnapLocation[IndexOfShortest]);
-						FVector Start = Floor->GetActorLocation() + FVector(0,0, 60);
-
-						bool FloorCheck = GetWorld()->LineTraceSingleByChannel(CubeHit, Start, (Start + FRotator(-90, 0,0).Vector() * 140), ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
-						if(FloorCheck)
-						{
-							AllowedPlacement = true;
-							Floor->MaterialGreen();
-						}
-						else
-						{
-							AllowedPlacement = false;
-							Floor->MaterialRed();
-						}
-						
+					if(CubeTrace1 || CubeTrace2 || CubeTrace3 || CubeTrace4)
+					{	
+						Floor->MaterialRed();
+						AllowedPlacement = false;
 					}
 					else
 					{
-						UE_LOG(LogTemp, Warning, TEXT("%s location"), *OutHit.GetActor()->GetActorLocation().ToString())
+						Floor->SetActorLocation(LineTraceEnd + FVector(0, 0, 50));
+						Floor->MaterialGreen();
+						AllowedPlacement = true;
+					}
+			}
+			
+		}
+		else if(BuildingSnap)
+		{
+			Floor->BlockTrace();
+			Floor->MaterialGreen();
+			Floor->OverlapDisplay();
+
+			float ShortestDistance = FVector::Distance(LineTraceEnd, FloorSnapLocation[0] + OutHit.GetActor()->GetActorLocation());
+			float ShortestDistanceRoof = FVector::Distance(GetOwner()->GetActorLocation(), RoofSnapLocation[0] + OutHit.GetActor()->GetActorLocation());
+			int32 IndexOfShortest = 0;
+
+			if (BuildingPiece == 0 )
+			{
+				//Floor snap
+				for (int i = 1; i < FloorSnapLocation.Num(); i++)
+				{
+					if (FVector::Distance(LineTraceEnd, FloorSnapLocation[i] + OutHit.GetActor()->GetActorLocation()) < ShortestDistance)
+					{
+						ShortestDistance = FVector::Distance(LineTraceEnd, FloorSnapLocation[i] + OutHit.GetActor()->GetActorLocation());
+						IndexOfShortest = i;
+					}
+				}
+
+				if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[0].X)
+				{
+					Floor->OverlapTrace();
+					Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation()  + FloorSnapLocation[IndexOfShortest]);
+
+					FVector FloorStart = Floor->GetActorLocation() + FVector(0,0, 60);
+					bool FloorCheck = GetWorld()->LineTraceSingleByChannel(CubeHit, FloorStart, (FloorStart + FRotator(-90, 0,0).Vector() * 140), ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
+					
+					if(FloorCheck)
+					{
+						AllowedPlacement = true;
+						Floor->MaterialGreen();
+					}
+					else
+					{
 						AllowedPlacement = false;
 						Floor->MaterialRed();
 					}
-					
+						
 				}
 				else
 				{
-					UE_LOG(LogTemp, Warning, TEXT("%s"), *OutHit.GetActor()->GetActorScale3D().ToString())
+					AllowedPlacement = false;
+					Floor->MaterialRed();
+				}
+			}
+			else if(BuildingPiece == 1)
+			{
+				//Wall Snap
 					
 					for (int i = 1; i < WallSnapLocation.Num(); i++)
 					{
-						if (FVector::Distance(PlacementEnd, WallSnapLocation[i] + OutHit.GetActor()->GetActorLocation()) < ShortestDistance)
+						if (FVector::Distance(LineTraceEnd, WallSnapLocation[i] + OutHit.GetActor()->GetActorLocation()) < ShortestDistance)
 						{
-							ShortestDistance = FVector::Distance(PlacementEnd, WallSnapLocation[i] + OutHit.GetActor()->GetActorLocation());
+							ShortestDistance = FVector::Distance(LineTraceEnd, WallSnapLocation[i] + OutHit.GetActor()->GetActorLocation());
 							IndexOfShortest = i;
 						}
 					}
-					AllowedPlacement = true;
-					if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[0].X && BuildItemNum == 1)
+					if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[0].X)
 					{
 						//can specify a bit more here on what it's hitting as this outhit allows for two things
 						if(OutHit.GetActor()->GetActorScale3D().Z == BuildingTypes[2].Z)
@@ -930,18 +871,30 @@ void AMyCharacter::BuildSystem(FVector PlacementEnd)
 						{
 							Floor->SetActorRotation(FRotator(0, 90, 0));
 						}
-						
 						else
 						{
 							Floor->SetActorRotation(FRotator(0, 0, 0));
-							//check if serverrotate is even needed anymore
 						}
+						AllowedPlacement = true;
 					}
-					
-					//ROOF PLACING
-					
-					else if(OutHit.GetActor()->GetActorScale3D().Z == BuildingTypes[1].Z && BuildItemNum == 2 )
-					{	
+					else if(OutHit.GetActor()->GetActorScale3D().Z == BuildingTypes[1].Z)
+					{
+						Floor->SetActorLocation(FVector(0, 0, 300) + OutHit.GetActor()->GetActorLocation());
+						//check relative rotation
+						if(OutHit.GetActor()->GetActorRotation() == FRotator(0,0,0))
+						{
+							Floor->SetActorRotation(FRotator(0,0,0));
+						}
+						else
+						{
+							Floor->SetActorRotation(FRotator(0, 90, 0));
+						}
+					}		
+			}
+			else if(BuildingPiece == 2)
+			{
+				if(OutHit.GetActor()->GetActorScale3D().Z == BuildingTypes[1].Z)
+				{	
 						
 						if(OutHit.GetActor()->GetActorRotation() == FRotator(0,0,0))
 						{
@@ -966,49 +919,93 @@ void AMyCharacter::BuildSystem(FVector PlacementEnd)
 								Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation() + FVector(0, 165 , 160));
 								
 							}
-						}	
-					}
-					//Wall rotation and check
-					else if(OutHit.GetActor()->GetActorScale3D().Z == BuildingTypes[1].Z && BuildItemNum == 1)
-					{
-						Floor->SetActorLocation(FVector(0, 0, 300) + OutHit.GetActor()->GetActorLocation());
-						//check relative rotation
-						if(OutHit.GetActor()->GetActorRotation() == FRotator(0,0,0))
-						{
-							Floor->SetActorRotation(FRotator(0,0,0));
 						}
-						else
-						{
-							Floor->SetActorRotation(FRotator(0, 90, 0));
-						}
-					}
-					//Roof attachment by roof
-					//reason you have to use y is because for some reason the fvector does not like register decimals.
-					else if(OutHit.GetActor()->GetActorScale3D().Y == BuildingTypes[2].Y && BuildItemNum == 2)
-					{
+						AllowedPlacement = true;	
+				}
+				else if(OutHit.GetActor()->GetActorScale3D().Y == BuildingTypes[2].Y)
+				{
 						
-						IndexOfShortest = 0;
-						for (int i = 1; i < WallSnapLocation.Num(); i++)
-						{
-							if (FVector::Distance(PlacementEnd, RoofSnapLocation[i] + OutHit.GetActor()->GetActorLocation()) < ShortestDistance)
-							{
-								ShortestDistance = FVector::Distance(PlacementEnd, RoofSnapLocation[i] + OutHit.GetActor()->GetActorLocation());
-								IndexOfShortest = i;
-							}
-						}
-						Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation() + RoofSnapLocation[IndexOfShortest]);
-					}
-					else
+					IndexOfShortest = 0;
+					for (int i = 1; i < WallSnapLocation.Num(); i++)
 					{
-						AllowedPlacement = false;
-						Floor->MaterialRed();
+						if (FVector::Distance(LineTraceEnd, RoofSnapLocation[i] + OutHit.GetActor()->GetActorLocation()) < ShortestDistance)
+						{
+							ShortestDistance = FVector::Distance(LineTraceEnd, RoofSnapLocation[i] + OutHit.GetActor()->GetActorLocation());
+							IndexOfShortest = i;
+						}
 					}
-				}	
+					Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation() + RoofSnapLocation[IndexOfShortest]);
+					AllowedPlacement = true;	
+				}
+			}
+			else
+			{
+				AllowedPlacement = false;
+				Floor->MaterialRed();
 			}
 		}
+		
 	}
+    
+		
 
 }
+
+//
+void AMyCharacter::ServerSwitchUp_Implementation(int32 BuildingPiece)
+{
+	//probably gonna need this to bp
+	if(BuildingPiece < 2)
+	{
+		++BuildingPiece;
+	}
+	BP_SwitchUp(BuildingPiece);
+	
+}
+int32 AMyCharacter::BP_SwitchUp(int32 BuildingPiece)
+{	
+	if(!HasAuthority())
+	{
+		ServerSwitchUp(BuildingPiece);
+	}
+	if (AllowBuilding && BuildingPiece < 2)
+	{
+		++BuildingPiece;
+		Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
+		AllowedPlacement = false;
+		Floor->MaterialRed();
+		
+		return BuildingPiece;
+	}
+	return BuildingPiece;
+}
+
+void AMyCharacter::ServerSwitchDown_Implementation(int32 BuildingPiece)
+{
+	if(BuildingPiece >= 1)
+	{
+		--BuildingPiece;
+		
+	}
+	BP_SwitchDown(BuildingPiece);
+}
+int32 AMyCharacter::BP_SwitchDown(int32 BuildingPiece)
+{
+	if(!HasAuthority())
+	{
+		ServerSwitchDown(BuildingPiece);
+	}
+	if (AllowBuilding && BuildingPiece >= 1)
+	{
+		--BuildingPiece;
+		Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
+		AllowedPlacement = false;
+		Floor->MaterialRed();
+		return BuildingPiece;
+	}
+	return BuildingPiece;
+}
+
 
 //interaction system
 void AMyCharacter::PerformInteractionCheck()

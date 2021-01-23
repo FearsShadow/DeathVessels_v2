@@ -58,7 +58,10 @@ void AFloor::OverlapDisplay()
 	}
 }
 
-
+void AFloor::Overlap()
+{
+	FloorBase->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+}
 void AFloor::Block()
 {
 	FloorBase->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);

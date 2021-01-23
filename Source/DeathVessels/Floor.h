@@ -24,6 +24,7 @@ public:
 	void BlockTrace();
 
 	void FloorOverlap();
+	void Overlap();
 
 	void BlockDisplay();
 	void OverlapDisplay();
