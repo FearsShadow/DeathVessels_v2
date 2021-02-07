@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InventorySystem.h"
+#include "InventoryTest.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "MyCharacter.generated.h"
 
@@ -40,9 +41,12 @@ class DEATHVESSELS_API AMyCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:	
-
+//building
 	UFUNCTION(BlueprintCallable)
 	void BP_FindPlacementLocation(int32 BuildingPiece);
+
+	UFUNCTION(BlueprintCallable)
+	void BP_CleanupBuild();
 
 	UFUNCTION(BlueprintCallable)
 	void BP_BuildKit(int32 BuildingPiece);
@@ -112,6 +116,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcess = "true"))
 	class UInventorySystem* Inventory;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcess = "true"))
+	class UInventoryTest* InventoryTest;
 	
 	int32 Ammo = 0;
 	int32 BulletsInMag;
@@ -133,6 +140,11 @@ public:
 	TSubclassOf<AHatchet> HatchetClass;
 
 	FVector LineTraceEnd;
+//interaction
+
+	bool IsInteracting() const;
+
+	float GetRemainingInteractTime() const;
 
 protected:
 	// Called when the game starts or when spawned
@@ -198,6 +210,32 @@ private:
 
 //building system
 
+	FVector Location;
+	FRotator Rotation; 
+	FVector End;
+
+	int32 IndexOfShortest;
+	TArray<FVector> BuildingTypes;
+
+	TArray<FVector> RoofSnapLocation;
+	TArray<FVector> FloorSnapLocation;
+	TArray<FVector> WallSnapLocation;
+
+	TArray<FVector> FloorSnapConversions;
+	TArray<FVector>	WallSnapConversion;
+	TArray<FVector> RoofSnapConversion;
+	
+	FVector RoofLocation;
+
+	TArray<FVector> CubeSnapLocations;
+	
+	TArray<AActor*> FloorsArray;
+
+	TArray<FVector> FloorsLocations;
+
+	AActor* MainActor;
+	AActor* ChildActors;
+
 	UFUNCTION(Server, Unreliable)
 	void ServerSwitchUp(int32 BuildingPiece);
 
@@ -205,10 +243,13 @@ private:
 	void ServerSwitchDown(int32 BuildingPiece);
 
 	UFUNCTION(Server, Reliable)
-	void ServerFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, AActor* FloorActor , int32 y);
+	void ServerCleanupBuild();
+
+	UFUNCTION(Server, Reliable)
+	void ServerFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, AActor* FloorActor , bool LandHit, int32 ShortestIndex, FVector RoofLoc);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, int32 y);
+	void MulticastFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, int32 ShortestIndex, bool LandHit, FVector RoofLoc);
 
 
 //other	
@@ -237,22 +278,18 @@ private:
 	
 	FCollisionQueryParams TraceParams;
 	
-	TArray<FVector> RoofSnapLocation;
-	TArray<FVector> BuildingTypes;
-	TArray<FVector> FloorSnapLocation;
-	TArray<FVector> WallSnapLocation;
-	
-	TArray<FVector> CubeSnapLocations;
-	
+
 	UCapsuleComponent* PlayerCapsule;
 	AFloor* Floor;
 	
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* GrabLocation;
+
 	UPROPERTY(EditAnywhere)
 	UPhysicsHandleComponent* Handle;
 
-	
+	bool LandScapeHit;
+
 	bool IsReloading = false;
 	bool IsGrabbing = false;
 	

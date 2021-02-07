@@ -19,6 +19,7 @@ public:
 	// Sets default values for this actor's properties
 	AFloor();
 
+	void PontoonLocation(FVector Location);
 
 	void OverlapTrace();
 	void BlockTrace();
@@ -38,6 +39,8 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* FloorBase;
+
+		
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

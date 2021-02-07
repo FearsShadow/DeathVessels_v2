@@ -4,6 +4,8 @@
 #include "AssaultRifle.h"
 #include "Hatchet.h"
 
+
+
 //this whole thing may be uneeded
 AFloor::AFloor()
 {	
@@ -11,6 +13,8 @@ AFloor::AFloor()
 	PrimaryActorTick.bCanEverTick = true;
 
 	FloorBase = CreateDefaultSubobject<UStaticMeshComponent>("FloorBase");
+
+	
 	SetRootComponent(FloorBase);
 }
 
@@ -38,11 +42,12 @@ void AFloor::MaterialGreen()
 }
 void AFloor::MaterialRed()
 {
-	if(FloorBase != nullptr)
-	{
-		FloorBase->SetMaterial(0, Red);
-	}
+	FloorBase->SetMaterial(0, Red);
+}
 
+void AFloor::PontoonLocation(FVector Location)
+{
+	
 }
 
 void AFloor::BlockDisplay()
@@ -60,18 +65,25 @@ void AFloor::OverlapDisplay()
 
 void AFloor::Overlap()
 {
-	FloorBase->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	if(FloorBase != nullptr)
+	{
+		FloorBase->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	}
 }
 void AFloor::Block()
 {
-	FloorBase->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-	FloorBase->SetCollisionResponseToChannel(ECC_Camera, ECR_Block);
-	FloorBase->SetCollisionResponseToChannel(ECC_PhysicsBody, ECR_Block);
-	FloorBase->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);	
-	FloorBase->SetMaterial(0, Original);
+	if(FloorBase != nullptr)
+	{
+		FloorBase->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+		FloorBase->SetCollisionResponseToChannel(ECC_Camera, ECR_Block);
+		FloorBase->SetCollisionResponseToChannel(ECC_PhysicsBody, ECR_Block);
+		FloorBase->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);	
+		FloorBase->SetMaterial(0, Original);
+	}
 }
 void AFloor::BlockTrace()
 {
+	
 	FloorBase->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Block);	
 }
 

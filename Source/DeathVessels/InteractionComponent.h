@@ -17,6 +17,14 @@ UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class DEATHVESSELS_API UInteractionComponent : public UWidgetComponent
 {
 	GENERATED_BODY()
+protected:
+
+	virtual void Deactivate() override;
+
+	bool CanInteract(class AMyCharacter* Character) const;
+
+	UPROPERTY()
+	TArray<class AMyCharacter*> Interactors;
 public:
 	UInteractionComponent();
 
@@ -35,6 +43,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
 	bool bAllowMultipleInteractors;
 
+	void RefreshWidget();
 
 	void BeginFocus(class AMyCharacter * Character);
 	void EndFocus(class AMyCharacter * Character);
@@ -43,6 +52,9 @@ public:
 	void EndInteract(class AMyCharacter * Character);
 
 	void Interact(class AMyCharacter * Character);
+
+	UFUNCTION(BlueprintPure, Category = "Info")
+	float GetInteractionPercentage();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintAssignable)
 	FOnBeginInteract OnBeginInteract;
@@ -54,5 +66,16 @@ public:
 	FOnBeginFocus OnBeginFocus;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintAssignable)
+	FOnBeginFocus OnEndFocus;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintAssignable)
 	FOnInteract OnInteract;
+
+	UFUNCTION(BlueprintCallable, Category = "Interactable")
+	void SetInteractableNameText(const FText& NewNameText);
+
+	UFUNCTION(BlueprintCallable, Category = "Interactable")
+	void SetInteractableActionText(const FText& NewActionText);
+
+
 };

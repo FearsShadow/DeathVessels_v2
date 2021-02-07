@@ -94,6 +94,7 @@ void AAssaultRifle::Bullet()
 void AAssaultRifle::AmmoCalculations(class AMyCharacter* Character)
 {	
 	APawn* PlayerPawn = Cast<APawn>(GetOwner());
+	//check here
 	if(Character->BulletsInMag > 0) 
     {	
 		Bullet();
