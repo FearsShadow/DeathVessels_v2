@@ -8,7 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "InteractionComponent.h"
 #include "Net/UnrealNetwork.h"
-
+#include "Camera/CameraComponent.h"
 
 
 //
@@ -204,10 +204,7 @@ void AMyCharacter::ServerXMovement_Implementation(float AxisValue)
 {
 	XMovement(AxisValue);
 }
-void AMyCharacter::ServerUnArmedRotation_Implementation()
-{
-	UnArmedRotation();
-}
+
 void AMyCharacter::XMovement(float AxisValue)
 {	
 	if(!HasAuthority())
@@ -228,19 +225,15 @@ void AMyCharacter::YMovement(float AxisValue)
 	{
 		ServerYMovement(AxisValue);
 	}
-	if(IsToolless)
-	{
-		UnArmedRotation();
-	}
-	else if(XInput != 0 && YInput != 0)
+	else if(XInput != 0 && YInput != 0 && WalkSpeed != 1)
 	{
 		WalkSpeed = 0.35;
-		GetMesh()->SetRelativeRotation(FMath::Lerp(GetMesh()->GetRelativeRotation(), FRotator(0, -90, 0), 0.13));
+		
 	}
-	else
+	else if(WalkSpeed != 1)
 	{
 		WalkSpeed = 0.60;
-		GetMesh()->SetRelativeRotation(FMath::Lerp(GetMesh()->GetRelativeRotation(), FRotator(0, -90, 0), 0.13));
+		
 	}
 
 	AddMovementInput(GetActorForwardVector()* AxisValue, WalkSpeed);
@@ -250,75 +243,6 @@ void AMyCharacter::YMovement(float AxisValue)
 }
 
 
-void AMyCharacter::UnArmedRotation()
-{
-	if(XInput != 0 && YInput != 0 )
-	{
-		if(WalkSpeed != 1)
-		{
-			WalkSpeed = 0.35;
-		}
-		if(XInput < 0 && YInput > 0)
-		{
-			GetMesh()->SetRelativeRotation(FMath::Lerp(GetMesh()->GetRelativeRotation(), FRotator(0, -135, 0), 0.13));
-		}
-		//backwards
-		else if(XInput > 0 && YInput < 0)
-		{
-			GetMesh()->SetRelativeRotation(FMath::Lerp(GetMesh()->GetRelativeRotation(), FRotator(0, -135, 0), 0.13));
-			WalkSpeed = 0.35;
-		}
-		//backwards
-		else if(XInput < 0 && YInput < 0)
-		{
-
-			GetMesh()->SetRelativeRotation(FMath::Lerp(GetMesh()->GetRelativeRotation(), FRotator(0, -45, 0), 0.13));
-			WalkSpeed = 0.35;
-		}
-		else if(XInput > 0 && YInput > 0)
-		{
-			GetMesh()->SetRelativeRotation(FMath::Lerp(GetMesh()->GetRelativeRotation(), FRotator(0, -45, 0), 0.13));
-		}
-	}
-	else if(XInput == 0 && YInput != 0)
-	{
-		if(WalkSpeed != 1)
-		{
-			WalkSpeed = 0.55;
-		}
-		if(YInput < 0)
-		{
-			WalkSpeed = 0.55;
-		}
-		GetMesh()->SetRelativeRotation(FMath::Lerp(GetMesh()->GetRelativeRotation(), FRotator(0, -90, 0), 0.13));
-	}
-	else if(XInput != 0 && YInput == 0)
-	{
-		if(WalkSpeed != 1)
-		{
-			WalkSpeed = 0.55;
-		}
-		if(XInput < 0)
-		{
-			GetMesh()->SetRelativeRotation(FMath::Lerp(GetMesh()->GetRelativeRotation(), FRotator(0, -180, 0), 0.13));
-		}
-		else if(XInput > 0)
-		{
-			//here is where it causes the player to turn the wrong way
-			GetMesh()->SetRelativeRotation(FMath::Lerp(GetMesh()->GetRelativeRotation(), FRotator(0, 0, 0), 0.13));
-			
-		}
-	}
-	else if(XInput == 0 && YInput == 0)
-	{
-		if(WalkSpeed != 1)
-		{
-			WalkSpeed = 0.55;
-		}
-
-		GetMesh()->SetRelativeRotation(FMath::Lerp(GetMesh()->GetRelativeRotation(), FRotator(0, -90, 0), 0.13));
-	}
-}
 void AMyCharacter::Sprint()
 {
 	if(!HasAuthority())
@@ -328,6 +252,7 @@ void AMyCharacter::Sprint()
 	if(!(XInput < 0 && YInput < 0) && !(XInput > 0 && YInput < 0))
 	{
 		WalkSpeed = 1;
+		
 	}
 }
 void AMyCharacter::ServerSprint_Implementation()
@@ -491,6 +416,8 @@ void AMyCharacter::StartJump()
 		GetWorld()->GetTimerManager().SetTimer(FireRateDelay, this, &AMyCharacter::JumpEndAnim, 1.6, false);
 		PlayerIsJumping = true;
 		bPressedJump = true;
+		
+
 	}
 }
 

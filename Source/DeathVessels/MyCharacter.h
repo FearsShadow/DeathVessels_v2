@@ -161,16 +161,13 @@ private:
 	UFUNCTION(Server, Unreliable)
 	void ServerHealthPercentage() const;
 
-	void UnArmedRotation();
+
 
 	void YMovement(float AxisValue);
 	void XMovement(float AxisValue);
 	void Sprint();
 	void SprintRelease();
 	
-	UFUNCTION(Server, Unreliable)
-	void ServerUnArmedRotation();
-
 	UFUNCTION(Server, Unreliable)
 	void ServerYMovement(float AxisValue);
 
