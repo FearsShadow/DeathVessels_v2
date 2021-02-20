@@ -19,8 +19,7 @@ AMyCharacter::AMyCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	Health = MaxHealth;
 	// ...
-	Inventory = CreateDefaultSubobject<UInventorySystem>("Inventory");
-	Inventory->Capacity = 20;
+
 
 	InventoryTest = CreateDefaultSubobject<UInventoryTest>("InventoryTest");
 
@@ -175,8 +174,8 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompone
 
 	//PlayerInputComponent->BindAction(TEXT("BuildMenu"), EInputEvent::IE_Pressed, this, &AMyCharacter::BuildMenu);
 
+	
 	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &AMyCharacter::Fire);
-	PlayerInputComponent->BindAction(TEXT("LeftClick"), EInputEvent::IE_Pressed, this, &AMyCharacter::LeftClick);
 	PlayerInputComponent->BindAction(TEXT("Reload"), EInputEvent::IE_Pressed, this, &AMyCharacter::Reload);
 
 	PlayerInputComponent->BindAction(TEXT("Weapon1"), EInputEvent::IE_Pressed, this, &AMyCharacter::ServerWeapon1);
@@ -281,7 +280,6 @@ void AMyCharacter::ServerWeapon1_Implementation()
 		AR->SetOwner(this);
 		IsAR = true;
 		IsToolless = false;
-		UE_LOG(LogTemp, Warning, TEXT("UnFailed"))
 		
 	}
 	else if (IsAR == true && PlayerIsJumping == false )
@@ -348,6 +346,7 @@ void AMyCharacter::ServerFire_Implementation(int32 Bullets)
 
 void AMyCharacter::Fire()
 {
+	
 	if(BulletsInMag > 0)
 	{
 		if (!IsReloading && IsAR || IsPlayerControlled() == false && AR != nullptr)
@@ -364,6 +363,10 @@ void AMyCharacter::Fire()
 			UE_LOG(LogTemp, Error, TEXT("AR == nullptr"))
 		}
 	}
+	else if(!IsAR)
+	{
+		LeftClick();
+	}
 }
 
 void AMyCharacter::ServerLeftClick_Implementation()
@@ -373,12 +376,13 @@ void AMyCharacter::ServerLeftClick_Implementation()
 
 void AMyCharacter::LeftClick()
 {
+	
 	if (!IsAR && IsHatchet)
 	{
 		
 		if(!HasAuthority() && Hatchet != nullptr)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Hatchet"))
+			
 			ServerLeftClick();
 		}
 		else if(Hatchet != nullptr)
@@ -386,10 +390,11 @@ void AMyCharacter::LeftClick()
 			UE_LOG(LogTemp, Error, TEXT("Hatchet == nullptr"))
 		}
 	}
-	
+
 	else if (!IsAR && !IsHatchet)
 	{
 		ReleaseDrop();
+		
 	}
 }
 	
@@ -620,16 +625,7 @@ int32 AMyCharacter::FindPlayer()
 	}
 }
 
-void AMyCharacter::UseItem(class UItems *Item)
-{
-	if (Item)
-	{
-		Item->Use(this);
-		Item->OnUse(this);
-		IsReloading = true;
-		GetWorld()->GetTimerManager().SetTimer(FireRateDelay, this, &AMyCharacter::CanFire, ReloadRate, true); // bp event
-	}
-}
+
 
 void AMyCharacter::CanFire()
 {
@@ -688,7 +684,7 @@ void AMyCharacter::BP_FindPlacementLocation(int32 BuildingPiece)
 	//input function ran off leftclick
 	if(!HasAuthority())
 	{	
-		UE_LOG(LogTemp, Warning, TEXT("ugla"))
+		
 		if(OutHit.GetActor() != nullptr && AllowedPlacement && AllowBuilding)
 		{	
 			ServerFindPlacementLocation(Floor->GetActorLocation(), Floor->GetActorRotation(), BuildingPiece, OutHit.GetActor(), LandScapeHit, IndexOfShortest, RoofLocation);

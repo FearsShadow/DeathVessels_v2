@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "InventorySystem.h"
-#include "InventoryTest.h"
+#include "Inventory.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "MyCharacter.generated.h"
 
@@ -111,18 +110,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 FindPlayer();
 
-	UFUNCTION(BlueprintCallable, Category = "Items")
-	void UseItem(UItems* Item);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcess = "true"))
-	class UInventorySystem* Inventory;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcess = "true"))
 	class UInventoryTest* InventoryTest;
 	
+//inventory variables
 	int32 Ammo = 0;
 	int32 BulletsInMag;
-	
+
+	int32 Wood = 0;
+
+//other
+
 	UFUNCTION(Server, Reliable)
 	void ServerLeftClick();
 

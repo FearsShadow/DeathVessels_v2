@@ -31,6 +31,8 @@ void AHatchet::Tick(float DeltaTime)
 	
 }
 
+
+
 void AHatchet::ServerSwing_Implementation(class AController* Pawn)
 {
 	//multicast
@@ -62,8 +64,6 @@ void AHatchet::ServerSwing_Implementation(class AController* Pawn)
 					
 					MulticastSwing(Pawn, OutHit.GetActor());
 					
-					
-					UE_LOG(LogTemp, Warning, TEXT("Here"))
 				}
 				
 				if(Tree != nullptr)
@@ -72,7 +72,8 @@ void AHatchet::ServerSwing_Implementation(class AController* Pawn)
 					FPointDamageEvent DamageEvent(DamageAmount, OutHit, -Rotation.Vector(), nullptr);
 					Tree->TakeDamage(DamageAmount, DamageEvent, Pawn, this);
 					
-					UE_LOG(LogTemp, Warning, TEXT("tree %f"), MultiplayerTreeCheck)
+					
+					
 				//store a value for the tree on the actual health as if you don't when some player switches health resets
 				}
 		}
