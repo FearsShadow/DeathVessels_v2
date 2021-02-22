@@ -18,8 +18,10 @@ public:
 	
 	float MultiplayerTreeCheck;
 
+	
+
 	UFUNCTION(Server, Unreliable)
-	void ServerSwing(AController * Pawn);
+	void ServerSwing(AController * Pawn, class AMyCharacter* Player);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastSwing(AController * Pawn, AActor* HitActor);

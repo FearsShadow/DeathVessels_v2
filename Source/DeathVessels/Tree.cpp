@@ -16,9 +16,6 @@ ATree::ATree()
 
 
 	//TreeBase =  CreateDefaultSubobject<UStaticMeshComponent>("Tree Base");
-	
-	
-	
 }
 
 
@@ -27,7 +24,6 @@ void ATree::BeginPlay()
 {
 	Super::BeginPlay();
 	TreeHealth = 100;
-	//ServerTreePhysics();
 	
 }
 

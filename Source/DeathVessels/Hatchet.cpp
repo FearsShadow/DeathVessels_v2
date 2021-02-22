@@ -2,7 +2,7 @@
 #include "Hatchet.h"
 #include "Tree.h"
 #include "Kismet/KismetSystemLibrary.h"
-
+#include "MyCharacter.h"
 
 AHatchet::AHatchet()
 {
@@ -32,8 +32,7 @@ void AHatchet::Tick(float DeltaTime)
 }
 
 
-
-void AHatchet::ServerSwing_Implementation(class AController* Pawn)
+void AHatchet::ServerSwing_Implementation(class AController* Pawn, class AMyCharacter* Player)
 {
 	//multicast
 	if(Pawn != nullptr)
@@ -52,7 +51,7 @@ void AHatchet::ServerSwing_Implementation(class AController* Pawn)
 		
 		if(AxeHit)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("gzere"))
+			
 				//set a bool for it being se
 				
 				if(Tree == nullptr)
@@ -71,6 +70,11 @@ void AHatchet::ServerSwing_Implementation(class AController* Pawn)
 
 					FPointDamageEvent DamageEvent(DamageAmount, OutHit, -Rotation.Vector(), nullptr);
 					Tree->TakeDamage(DamageAmount, DamageEvent, Pawn, this);
+					if(Tree->TreeHealth > 0)
+					{
+						Player->Wood +=10;
+						UE_LOG(LogTemp, Warning, TEXT("%i wood"), Player->Wood)
+					}
 					
 					
 					

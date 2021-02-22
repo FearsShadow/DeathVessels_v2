@@ -77,13 +77,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config, Replicated)
 	int32 Health;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config, Replicated)
-	bool IsToolless = true;
+	UPROPERTY(BlueprintReadWrite, Replicated)
+	bool SwingAxe = false;
 
-	UPROPERTY(Replicated)
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool IsAR = false;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool IsHatchet = false;
 
 	UPROPERTY(Replicated)
@@ -119,6 +120,7 @@ public:
 	int32 Ammo = 0;
 	int32 BulletsInMag;
 
+	UPROPERTY(Replicated)
 	int32 Wood = 0;
 
 //other
@@ -151,6 +153,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	FTimerHandle FireRateDelay;
+
+	FTimerHandle HatchetSwingDelay;
 private:
 //InputRelated
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -161,7 +165,7 @@ private:
 	UFUNCTION(Server, Unreliable)
 	void ServerHealthPercentage() const;
 
-
+	void SwingAxeTimer();
 
 	void YMovement(float AxisValue);
 	void XMovement(float AxisValue);

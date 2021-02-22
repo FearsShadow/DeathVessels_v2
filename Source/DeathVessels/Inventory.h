@@ -45,7 +45,6 @@ private:
 
 	bool ValueSet;
 
-
 	TArray<FString> ItemName;
 	TArray<int32> ItemNum;
 

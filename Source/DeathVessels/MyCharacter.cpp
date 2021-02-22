@@ -121,7 +121,7 @@ void AMyCharacter::Tick(float DeltaTime)
 		}
 	}
 	
-		
+	
 	
 	if (Handle->GetGrabbedComponent() != nullptr)
 	{
@@ -132,10 +132,6 @@ void AMyCharacter::Tick(float DeltaTime)
 		}
 		Handle->SetTargetLocationAndRotation(LineTraceEnd, PlacementRotation);
 	}
-	// if(AllowBuilding)
-	// {
-	// 	BuildSystem(LineTraceEnd);
-	// }
 	//interactionsystem
 	
 	const bool IsInteractingOnServer = (HasAuthority() && IsInteracting());
@@ -193,7 +189,8 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & Out
 	DOREPLIFETIME(AMyCharacter, Hatchet)
 	DOREPLIFETIME(AMyCharacter, WalkSpeed);
 	DOREPLIFETIME(AMyCharacter, Health);
-	DOREPLIFETIME(AMyCharacter, IsToolless);
+	DOREPLIFETIME(AMyCharacter, SwingAxe);
+	DOREPLIFETIME(AMyCharacter, Wood);
 }
 void AMyCharacter::ServerYMovement_Implementation(float AxisValue)
 {
@@ -279,21 +276,18 @@ void AMyCharacter::ServerWeapon1_Implementation()
 		AR->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("hand_r"));
 		AR->SetOwner(this);
 		IsAR = true;
-		IsToolless = false;
 		
 	}
 	else if (IsAR == true && PlayerIsJumping == false )
 	{
 		AR->Destroy();
 		IsAR = false;
-		IsToolless = true;
 		
 	}
 	else if (IsHatchet == true && PlayerIsJumping == false)
 	{
 		Hatchet->Destroy();
 		IsHatchet = false;
-		IsToolless = true;
 		ServerWeapon1();	
 	}
 	if(AR == nullptr)
@@ -308,17 +302,15 @@ void AMyCharacter::ServerWeapon2_Implementation()
 	if ( IsAR == false && IsHatchet == false && IsGrabbing == false && PlayerIsJumping == false)
 	{
 		Hatchet = GetWorld()->SpawnActor<AHatchet>(HatchetClass);
-		Hatchet->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("hand_r"));
+		Hatchet->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("HatchetSocket"));
 		Hatchet->SetOwner(this);
 		IsHatchet = true;
-		IsToolless = false;
 		
 	}
 	else if (IsHatchet == true && PlayerIsJumping == false && Hatchet != nullptr)
 	{
 		Hatchet->Destroy();
 		IsHatchet = false;
-		IsToolless = true;
 		
 	}
 	//switches between weapons
@@ -326,7 +318,6 @@ void AMyCharacter::ServerWeapon2_Implementation()
 	{
 		AR->Destroy();
 		IsAR = false;
-		IsToolless = true;	
 		ServerWeapon2();
 	}
 	
@@ -371,7 +362,15 @@ void AMyCharacter::Fire()
 
 void AMyCharacter::ServerLeftClick_Implementation()
 {
-	Hatchet->ServerSwing(GetController());
+	if(!GetWorldTimerManager().IsTimerActive(HatchetSwingDelay) && SwingAxe == false)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Here"))
+		//to make them swing faster all you have to do is increase the playrate of the chop and then decrease the timer.
+		GetWorldTimerManager().SetTimer(HatchetSwingDelay, this, &AMyCharacter::SwingAxeTimer, 2.4f, false);
+		SwingAxe = true;
+		
+		Hatchet->ServerSwing(GetController(), this);
+	}
 }
 
 void AMyCharacter::LeftClick()
@@ -380,15 +379,16 @@ void AMyCharacter::LeftClick()
 	if (!IsAR && IsHatchet)
 	{
 		
-		if(!HasAuthority() && Hatchet != nullptr)
-		{
-			
-			ServerLeftClick();
-		}
-		else if(Hatchet != nullptr)
-		{
-			UE_LOG(LogTemp, Error, TEXT("Hatchet == nullptr"))
-		}
+		
+			if(!HasAuthority() && Hatchet != nullptr)
+			{
+				ServerLeftClick();
+			}
+			else if(Hatchet != nullptr)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Hatchet == nullptr"))
+			}
+		
 	}
 
 	else if (!IsAR && !IsHatchet)
@@ -768,6 +768,7 @@ void AMyCharacter::BP_BuildMenu(int32 BuildingPiece)
 	if(Floor != nullptr)
 	{
 		Floor->Destroy();
+		
 	}
 	Floor = GetWorld()->SpawnActor<AFloor>(FloorClass);
 	Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
@@ -1215,4 +1216,9 @@ bool AMyCharacter::IsInteracting() const
 float AMyCharacter::GetRemainingInteractTime() const
 {
 	return GetWorldTimerManager().GetTimerRemaining(TimerHandle_Interact);
+}
+
+void AMyCharacter::SwingAxeTimer()
+{
+	SwingAxe = false;
 }

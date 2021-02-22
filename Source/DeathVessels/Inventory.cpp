@@ -36,16 +36,17 @@ void UInventoryTest::AddAmmo(class AMyCharacter* Player)
     {
 		//if it is unique then allow it
 		//check index before to see if it stays the same if it stays the same return false so it doesn't make that widget
-	
 		ItemIndex = ItemName.Num(); 
-        Player->Ammo += 25;
-
-		ItemName.AddUnique("Ammo");
-		if(ItemName.Num() > ItemIndex)
+		if(Player->Ammo)
 		{
-			AddToInventory = true;
+			ItemName.AddUnique("Ammo");
+			ItemNum.Add(Player->Ammo);
 		}
-		ItemNum.Add(Player->Ammo);
+		if(Player->Wood > 0)
+		{
+			ItemName.AddUnique("Wood");
+			ItemNum.Add(Player->Wood);
+		}
 		ValueSet = true;
 		
     }
@@ -63,6 +64,10 @@ void UInventoryTest::ItemInfo(class AMyCharacter* Player, int32& Amount, FString
 	//(Which is just increasing the a value by one to get the correct index of what to add in next to the array.)
 
 	//you just get the array, here and set the value from the array to either amount or title
+	if(ItemIndex == ItemName.Num())
+	{
+		ItemIndex = 0;
+	}
 	if(ItemIndex < ItemName.Num() && ValueSet)
 	{
 		Amount = ItemNum[ItemIndex];
