@@ -33,12 +33,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-private:	
+private:
+	UPROPERTY(EditAnywhere)	
+	UStaticMeshComponent* Tree;
+	
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastTreePhysics();
 
-	UFUNCTION(Server, Unreliable)
-	void ServerTreePhysics();
+
 
 	
 

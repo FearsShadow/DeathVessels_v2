@@ -11,6 +11,7 @@
 #include "Camera/CameraComponent.h"
 
 
+
 //
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -35,6 +36,8 @@ void AMyCharacter::BeginPlay()
 	
 	PlayerCapsule = this->GetCapsuleComponent();
 	PlayerCapsule->GetScaledCapsuleSize(OutRadius, OutHalfHeight);
+	
+	
 	
 	if(Waves != nullptr)
 	{
@@ -117,6 +120,7 @@ void AMyCharacter::Tick(float DeltaTime)
 		{
 			GetController()->GetPlayerViewPoint(PlacementLocation, PlacementRotation);
 			LineTraceEnd = (PlacementLocation + PlacementRotation.Vector() * 600);
+			LengthOfGrabber = (PlacementLocation + PlacementRotation.Vector() * GrabLength);
 			GetWorld()->LineTraceSingleByChannel(OutHit, PlacementLocation, LineTraceEnd, ECC_Visibility, TraceParams);
 		}
 	}
@@ -130,7 +134,12 @@ void AMyCharacter::Tick(float DeltaTime)
 		{
 			ReleaseDrop();
 		}
-		Handle->SetTargetLocationAndRotation(LineTraceEnd, PlacementRotation);
+		Handle->SetTargetLocationAndRotation(LengthOfGrabber, PlacementRotation);
+		
+	}
+	else
+	{
+		
 	}
 	//interactionsystem
 	
@@ -155,8 +164,11 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompone
 
 	PlayerInputComponent->BindAxis(TEXT("XMovement"), this, &AMyCharacter::XMovement);
 	PlayerInputComponent->BindAxis(TEXT("YMovement"), this, &AMyCharacter::YMovement);
+
 	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Pressed, this, &AMyCharacter::Sprint);
 	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Released, this, &AMyCharacter::SprintRelease);
+	PlayerInputComponent->BindAction(TEXT("Extend"), EInputEvent::IE_Repeat, this, &AMyCharacter::GrabExtend);
+	PlayerInputComponent->BindAction(TEXT("Detract"), EInputEvent::IE_Repeat, this, &AMyCharacter::GrabDetract);
 
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMyCharacter::StartJump);
 	//do not switch these two crouches doing so will result in the toggle breaking CrouchEnd always first here, Crouch second. The reason for this is you need the crouchend to run before crouch so Crouchend doesn't try to run first and break the process
@@ -299,7 +311,7 @@ void AMyCharacter::ServerWeapon1_Implementation()
 void AMyCharacter::ServerWeapon2_Implementation()
 {
 	//might have some issues without having isgrabbing and player is jumping replicated
-	if ( IsAR == false && IsHatchet == false && IsGrabbing == false && PlayerIsJumping == false)
+	if (IsAR == false && IsHatchet == false && IsGrabbing == false && PlayerIsJumping == false)
 	{
 		Hatchet = GetWorld()->SpawnActor<AHatchet>(HatchetClass);
 		Hatchet->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("HatchetSocket"));
@@ -362,15 +374,17 @@ void AMyCharacter::Fire()
 
 void AMyCharacter::ServerLeftClick_Implementation()
 {
+	
 	if(!GetWorldTimerManager().IsTimerActive(HatchetSwingDelay) && SwingAxe == false)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Here"))
+		
 		//to make them swing faster all you have to do is increase the playrate of the chop and then decrease the timer.
-		GetWorldTimerManager().SetTimer(HatchetSwingDelay, this, &AMyCharacter::SwingAxeTimer, 2.4f, false);
+		GetWorldTimerManager().SetTimer(HatchetSwingDelay, this, &AMyCharacter::SwingAxeTimer, 1.6f, false);
 		SwingAxe = true;
 		
 		Hatchet->ServerSwing(GetController(), this);
 	}
+
 }
 
 void AMyCharacter::LeftClick()
@@ -379,16 +393,15 @@ void AMyCharacter::LeftClick()
 	if (!IsAR && IsHatchet)
 	{
 		
-		
 			if(!HasAuthority() && Hatchet != nullptr)
 			{
 				ServerLeftClick();
+				
 			}
 			else if(Hatchet != nullptr)
 			{
 				UE_LOG(LogTemp, Error, TEXT("Hatchet == nullptr"))
-			}
-		
+			}	
 	}
 
 	else if (!IsAR && !IsHatchet)
@@ -468,7 +481,21 @@ void AMyCharacter::Grab()
 		}
 	}
 }
+void AMyCharacter::GrabExtend()
+{
+	if(GrabLength < 600)
+	{
+		GrabLength += 20;
 
+	}
+}
+void AMyCharacter::GrabDetract()
+{
+	if(GrabLength > 160)
+	{
+		GrabLength -= 20;
+	}
+}
 
 void AMyCharacter::ReleaseThrow()
 {

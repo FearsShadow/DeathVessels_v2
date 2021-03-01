@@ -112,7 +112,6 @@ public:
 	int32 FindPlayer();
 
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcess = "true"))
 	class UInventoryTest* InventoryTest;
 	
@@ -209,6 +208,9 @@ private:
 	void ReleaseThrow();
 	void ReleaseDrop();
 
+	void GrabDetract();
+	void GrabExtend();
+
 //building system
 
 	FVector Location;
@@ -264,20 +266,22 @@ private:
 	bool TurnOffCrouch;
 	bool StartCrouch = true;
 
-	
-	
+	bool IsGrabbing = false;
 	bool AllowedPlacement = false;
 	
 	int32 ValueIncreaser = 1;
 	int32 z = 0;
-
+	int32 GrabLength = 110;
 	int32 CubeIncreaser = 0;
-	//
+
+	FVector LengthOfGrabber;
+
 	FVector ClientLocation;
 	FVector PlacementLocation;
 	FRotator PlacementRotation;
 	
 	FCollisionQueryParams TraceParams;
+	
 	
 
 	UCapsuleComponent* PlayerCapsule;
@@ -292,7 +296,8 @@ private:
 	bool LandScapeHit;
 
 	bool IsReloading = false;
-	bool IsGrabbing = false;
+
+	
 	
 	bool AllowBuilding = false;
 
@@ -307,6 +312,8 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AFloor> FloorClass;
+
+	
 	
 	UPROPERTY(EditAnywhere, Category = "Health")
 	int32 MaxHealth = 100;

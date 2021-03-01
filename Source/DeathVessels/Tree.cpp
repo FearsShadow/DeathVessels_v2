@@ -11,11 +11,8 @@ ATree::ATree()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Capsule = CreateDefaultSubobject<UCapsuleComponent>("Capsule Component");
-	SetRootComponent(Capsule);
+	Tree = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tree"));
 
-
-	//TreeBase =  CreateDefaultSubobject<UStaticMeshComponent>("Tree Base");
 }
 
 
@@ -37,18 +34,14 @@ void ATree::Tick(float DeltaTime)
 }
 
 
-void ATree::ServerTreePhysics_Implementation()
-{
-	Capsule->SetSimulatePhysics(true);
-	UE_LOG(LogTemp, Warning, TEXT("server"))
-	MulticastTreePhysics();
-}
 
 void ATree::MulticastTreePhysics_Implementation()
 {
-	Capsule->SetSimulatePhysics(true);
-	UE_LOG(LogTemp, Warning, TEXT("multi"))
+	Tree->SetSimulatePhysics(true);
+	Tree->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
+
+
 
 float ATree::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
 {
@@ -65,10 +58,7 @@ float ATree::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEve
 		if(TreeHealth <= 0)
 		{
 			
-			if(!HasAuthority())
-			{
-				ServerTreePhysics();
-			}
+			
 			if(HasAuthority())
 			{
 				MulticastTreePhysics();

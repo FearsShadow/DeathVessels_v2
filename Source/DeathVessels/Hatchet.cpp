@@ -1,7 +1,7 @@
 // Copyright Jonathan Bejarano, DeathVessels C++
 #include "Hatchet.h"
 #include "Tree.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "MyCharacter.h"
 
 AHatchet::AHatchet()
@@ -23,20 +23,13 @@ void AHatchet::BeginPlay()
 	
 }
 
-// Called every frame
-void AHatchet::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	
-}
-
 
 void AHatchet::ServerSwing_Implementation(class AController* Pawn, class AMyCharacter* Player)
 {
 	//multicast
 	if(Pawn != nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Server swung"))
 		FHitResult OutHit;
 		FCollisionQueryParams TraceParams;
 		Pawn->GetPlayerViewPoint(Location, Rotation);
@@ -46,52 +39,22 @@ void AHatchet::ServerSwing_Implementation(class AController* Pawn, class AMyChar
 		TraceParams.AddIgnoredActor(GetOwner());
 		TraceParams.AddIgnoredActor(this);
 		
-		UKismetSystemLibrary::DrawDebugLine(GetWorld(), Location, End, FLinearColor::Red, 10, 20);
 		bool AxeHit = GetWorld()->LineTraceSingleByChannel(OutHit, Location, End, ECC_GameTraceChannel3, TraceParams);
 		
 		if(AxeHit)
 		{
-			
-				//set a bool for it being se
 				
-				if(Tree == nullptr)
-				{
-					Tree = GetWorld()->SpawnActor<ATree>(TreeClass);
-					Tree->SetActorLocation(OutHit.GetActor()->GetActorLocation());
-					Tree->SetOwner(this);
-					//error
-					
-					MulticastSwing(Pawn, OutHit.GetActor());
-					
-				}
+			if(OutHit.GetActor() != nullptr)
+			{
+				FPointDamageEvent DamageEvent(DamageAmount, OutHit, -Rotation.Vector(), nullptr);
+				OutHit.GetActor()->TakeDamage(DamageAmount, DamageEvent, Pawn, this);
 				
-				if(Tree != nullptr)
-				{
-
-					FPointDamageEvent DamageEvent(DamageAmount, OutHit, -Rotation.Vector(), nullptr);
-					Tree->TakeDamage(DamageAmount, DamageEvent, Pawn, this);
-					if(Tree->TreeHealth > 0)
-					{
-						Player->Wood +=10;
-						UE_LOG(LogTemp, Warning, TEXT("%i wood"), Player->Wood)
-					}
-					
-					
-					
-				//store a value for the tree on the actual health as if you don't when some player switches health resets
-				}
+				Player->Wood +=10;
+				UE_LOG(LogTemp, Warning, TEXT("%i wood"), Player->Wood)
+				
+			}	
 		}
 	}
 	
 }
 
-void AHatchet::MulticastSwing_Implementation(AController * Pawn, AActor* HitActor)
-{
-	if(HitActor != nullptr)
-	{
-		HitActor->Destroy();	
-		//get health before
-		
-	}
-		
-}
