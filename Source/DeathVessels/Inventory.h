@@ -30,7 +30,7 @@ public:
 	void ItemInfo(class AMyCharacter* Player, int32& Amount, FString& Title, FString& Description);
 	//class AMyCharacter* Player;
 	UFUNCTION(BlueprintCallable)
-	void DropItem(class AMyCharacter* Player, int32 AmountToRemove);
+	void DropItem(class AMyCharacter* Player, int32 AmountToRemove, FString ItemToDrop);
 
 	UFUNCTION(BlueprintCallable)
 	float AmountToRemove(class AMyCharacter* Player, float ValueToRemove, float Amount);

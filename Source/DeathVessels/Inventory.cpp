@@ -31,24 +31,42 @@ void UInventoryTest::BeginPlay()
 // needs to be server side
 void UInventoryTest::AddAmmo(class AMyCharacter* Player)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Howdy outside of conditional"))
+	
 
 	if(Player)
     {
 		//if it is unique then allow it
 		//check index before to see if it stays the same if it stays the same return false so it doesn't make that widget
 		ItemIndex = ItemName.Num(); 
-		if(Player->Ammo > 0)
+		
+		if( Player->Ammo > 0)
 		{
-			ItemName.AddUnique("Ammo");
-			ItemDescription.AddUnique("5.56 Ammo, goes very fast and hurts.");
-			ItemNum.Add(Player->Ammo);
+			if(!ItemName.Contains("Ammo"))
+			{
+				ItemName.AddUnique("Ammo");
+				ItemDescription.AddUnique("Ammo, goes very fast and hurts.");
+				ItemNum.Add(Player->Ammo);
+
+				//Add it to the array once then change the value from there if deleted add an exception
+				// in the if statement if and make sure it is the one that was deleted and if so then it can readd player ammo to the array.
+			}
+			else
+			{
+				ItemNum[ItemName.Find("Ammo")] = Player->Ammo;
+			}
 		}
 		if(Player->Wood > 0)
 		{
-			ItemName.AddUnique("Wood");
-			ItemDescription.AddUnique("Pulled straight off of a tree or something. Would make a good wacking stick.");
-			ItemNum.Add(Player->Wood);
+			if(!ItemName.Contains("Wood"))
+			{
+				ItemName.AddUnique("Wood");
+				ItemDescription.AddUnique("Pulled straight off of a tree or something. Would make a good wacking stick.");
+				ItemNum.Add(Player->Wood);
+			}
+			else
+			{
+				ItemNum[ItemName.Find("Wood")] = Player->Wood;
+			}
 		}
 		ValueSet = true;
 		
@@ -62,13 +80,6 @@ void UInventoryTest::CreateItemWidget(int32& ItemsInInventory)
 
 void UInventoryTest::ItemInfo(class AMyCharacter* Player, int32& Amount, FString& Title, FString& Description)
 {
-	//basically you could make an array, add in whatever item get in your inventory, then you have all the data of what is in the players inventory,
-	// when it comes to the player removing something from their inventory what you would do is decrease the indexer.
-	//(Which is just increasing the a value by one to get the correct index of what to add in next to the array.)
-
-	//you just get the array, here and set the value from the array to either amount or title
-	
-	//I should be able to just use this
 	if(ItemIndex == ItemName.Num())
 	{
 		ItemIndex = 0;
@@ -78,56 +89,44 @@ void UInventoryTest::ItemInfo(class AMyCharacter* Player, int32& Amount, FString
 		Amount = ItemNum[ItemIndex];
 		Title = ItemName[ItemIndex];
 		Description = ItemDescription[ItemIndex];
+		
+		if(Amount == 0)
+		{
+			ItemNum.RemoveAt(ItemIndex);
+			ItemName.RemoveAt(ItemIndex);
+			ItemDescription.RemoveAt(ItemIndex);
+			//set variable that is == to the itemname and that way you can check if you need to re-add
+		}
 		ItemIndex++;
 	}
+	//this is the issue
+	
+
 }
 
-void UInventoryTest::DropItem(class AMyCharacter* Player, int32 AmountToRemove)
+void UInventoryTest::DropItem(class AMyCharacter* Player, int32 AmountToRemove, FString ItemToDrop)
 {
 	//get index of whatever item you have then change the value in it in order to make the inventory accurate.
 	ItemTypeName = "Null";
 	if(AmountToRemove <= 0 && ValueSet){return;}
+	UE_LOG(LogTemp, Warning, TEXT("brr"))
 
-	if(Player->Ammo - AmountToRemove  >= 0)
+	//this basically allows it to subtract from whatever it want's should have a selected item only
+	if(Player->Ammo - AmountToRemove  >= 0 && ItemToDrop == "Ammo")
 	{
 		
-		ItemTypeName = "5.56 Ammo";
+		ItemTypeName = ItemToDrop;
 		Player->Ammo -= AmountToRemove;
-		
-		for(int32 i = 0; ItemName[i]  == "5.56 Ammo" && i < ItemName.Num(); i++)
-		{
-			ItemNum[i] = Player->Ammo;
-			ItemTypeIndex = i;
-			
-		}
-		if(ItemName[0] == "5.56 Ammo")
-		{
-			ItemNum[0] = Player->Wood;
-		}
+		ItemNum[ItemName.Find("Ammo")] = Player->Ammo;
 	}
-	else if(Player->Wood - AmountToRemove >= 0 )
+	else if(Player->Wood - AmountToRemove >= 0 && ItemToDrop == "Wood")
 	{
 		
-		ItemTypeName = "Wood";
+		ItemTypeName = ItemToDrop;
 		Player->Wood -= AmountToRemove;
-
-		for(int32 i = 0; ItemName[i]  == "Wood" && i < ItemName.Num() - 1; i++)
-		{
-			ItemNum[i] = Player->Wood;
-			ItemTypeIndex = i;
-		}
-		if(ItemName[0] == "Wood")
-		{
-			ItemNum[0] = Player->Wood;
-		}
-
+		ItemNum[ItemName.Find("Wood")] = Player->Wood;
+		UE_LOG(LogTemp, Warning, TEXT("%i"), Player->Wood)
 		
-		if(Player->Wood == 0 )
-		{
-			ItemNum.RemoveAt(ItemTypeIndex);
-			ItemName.RemoveAt(ItemTypeIndex);
-			ItemDescription.RemoveAt(ItemTypeIndex);
-		}
 	}
 
 	if(ItemTypeName != "Null")	
@@ -160,10 +159,11 @@ void UInventoryTest::ItemAdjustment_BP(class AMyCharacter* Player, UStaticMeshCo
 {
 	if(ItemMesh == nullptr || InteractionComponent == nullptr){return;}
 	//can probably remove ammo and stuff here that way you are not dealing with it elsewhere
-	if(ItemTypeName == "5.56 Ammo")
+	if(ItemTypeName == "Ammo")
 	{
 		ItemMesh->SetStaticMesh(Ammo);
-		InteractionComponent->SetInteractableNameText(FText::FromString("5.56 Ammo"));
+		InteractionComponent->SetInteractableNameText(FText::FromString("Ammo"));
 	}
+
 	ItemMesh->AddImpulse(FVector(0, 150, 0));
 }
