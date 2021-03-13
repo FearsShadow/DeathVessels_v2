@@ -8,7 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "InteractionComponent.h"
 #include "Net/UnrealNetwork.h"
-#include "Camera/CameraComponent.h"
+
 
 
 
@@ -102,9 +102,10 @@ void AMyCharacter::BeginPlay()
 
 	//824 pos negative x solid 53 z
 
-	BuildingTypes.Add(FVector(3.5, 3.5, 1));
-	BuildingTypes.Add(FVector(0.2, 3.5, 3));
-	BuildingTypes.Add(FVector(3.5, 3.5, 0.3));
+	BuildingTypes.Add(FVector(3.5f, 3.5f, 1.f));
+	BuildingTypes.Add(FVector(0.2f, 3.5f, 3.f));
+	BuildingTypes.Add(FVector(3.5f, 3.5f, 0.3f));
+	BuildingTypes.Add(FVector(1.9f, 1.8f, 0.7f));
 
 	FindPlayer();
 }
@@ -481,8 +482,22 @@ void AMyCharacter::Grab()
 		}
 	}
 }
+void AMyCharacter::ServerGrabDetract_Implementation()
+{
+	GrabDetract();
+}
+
+void AMyCharacter::ServerGrabExtend_Implementation()
+{
+	GrabExtend();
+}
+
 void AMyCharacter::GrabExtend()
 {
+	if(!HasAuthority())
+	{
+		ServerGrabExtend();
+	}
 	if(GrabLength < 600)
 	{
 		GrabLength += 20;
@@ -491,6 +506,10 @@ void AMyCharacter::GrabExtend()
 }
 void AMyCharacter::GrabDetract()
 {
+	if(!HasAuthority())
+	{
+		ServerGrabDetract();
+	}
 	if(GrabLength > 160)
 	{
 		GrabLength -= 20;
@@ -706,7 +725,7 @@ void AMyCharacter::ServerCleanupBuild_Implementation()
 }
 
 //perfect for system with bp just needs to be called upon
-void AMyCharacter::BP_FindPlacementLocation(int32 BuildingPiece)
+void AMyCharacter::BP_FindPlacementLocation(const int32 BuildingPiece)
 {
 	//input function ran off leftclick
 	if(!HasAuthority())
@@ -720,7 +739,7 @@ void AMyCharacter::BP_FindPlacementLocation(int32 BuildingPiece)
 
 	}
 }
-void AMyCharacter::ServerFindPlacementLocation_Implementation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, AActor* FloorActor , bool LandHit, int32 ShortestIndex, FVector RoofLoc)
+void AMyCharacter::ServerFindPlacementLocation_Implementation(const FVector Client, const FRotator ClientRotation, const int32 BuildObjectNum,  AActor* FloorActor, const bool LandHit, const int32 ShortestIndex, const FVector RoofLoc)
 {
 	Floor = GetWorld()->SpawnActor<AFloor>(FloorClass);
 	//Maybe instead of using all these things like roofloc and stuff maybe you can just set a value at the end of buildkit
@@ -746,7 +765,7 @@ void AMyCharacter::ServerFindPlacementLocation_Implementation(FVector Client, FR
 	
 }
 
-void AMyCharacter::MulticastFindPlacementLocation_Implementation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, int32 ShortestIndex, bool LandHit, FVector RoofLoc)
+void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector Client, const FRotator ClientRotation, const int32 BuildObjectNum, const int32 ShortestIndex, const bool LandHit, const FVector RoofLoc)
 {
 	//only works for the first block
 	//perfect for land hit need to use info from buildkit in order to get the correct snap location for some of these relative one's however
@@ -795,9 +814,10 @@ void AMyCharacter::BP_BuildMenu(int32 BuildingPiece)
 	if(Floor != nullptr)
 	{
 		Floor->Destroy();
-		
 	}
 	Floor = GetWorld()->SpawnActor<AFloor>(FloorClass);
+	
+	Floor->SetFloorShape(BuildingPiece);
 	Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
 	Floor->Overlap();
 	BuildingPiece = 0; //may cause issue
@@ -1008,7 +1028,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 
 					
 				}
-				else if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[2].X && OutHit.GetActor()->GetActorScale3D().Z != BuildingTypes[0].Z)
+				else if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[2].X && OutHit.GetActor()->GetActorScale3D().X != BuildingTypes[0].X)
 				{
 						
 					IndexOfShortest = 0;
@@ -1044,7 +1064,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 void AMyCharacter::ServerSwitchUp_Implementation(int32 BuildingPiece)
 {
 	//probably gonna need this to bp
-	if(BuildingPiece < 2)
+	if(BuildingPiece < 3)
 	{
 		++BuildingPiece;
 	}
@@ -1057,9 +1077,11 @@ int32 AMyCharacter::BP_SwitchUp(int32 BuildingPiece)
 	{
 		ServerSwitchUp(BuildingPiece);
 	}
-	if (AllowBuilding && BuildingPiece < 2)
+	if (AllowBuilding && BuildingPiece < 3)
 	{
 		++BuildingPiece;
+
+		Floor->SetFloorShape(BuildingPiece);
 		Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
 		AllowedPlacement = false;
 		Floor->MaterialRed();
@@ -1074,7 +1096,6 @@ void AMyCharacter::ServerSwitchDown_Implementation(int32 BuildingPiece)
 	if(BuildingPiece >= 1)
 	{
 		--BuildingPiece;
-		
 	}
 	BP_SwitchDown(BuildingPiece);
 }
@@ -1087,9 +1108,12 @@ int32 AMyCharacter::BP_SwitchDown(int32 BuildingPiece)
 	if (AllowBuilding && BuildingPiece >= 1)
 	{
 		--BuildingPiece;
+
+		Floor->SetFloorShape(BuildingPiece);
 		Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
 		AllowedPlacement = false;
 		Floor->MaterialRed();
+
 		return BuildingPiece;
 	}
 	return BuildingPiece;

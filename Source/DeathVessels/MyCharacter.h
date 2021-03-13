@@ -207,6 +207,12 @@ private:
 	void Grab();
 	void ReleaseThrow();
 	void ReleaseDrop();
+	
+	UFUNCTION(Server, Unreliable)
+	void ServerGrabExtend();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerGrabDetract();
 
 	void GrabDetract();
 	void GrabExtend();
@@ -249,10 +255,10 @@ private:
 	void ServerCleanupBuild();
 
 	UFUNCTION(Server, Reliable)
-	void ServerFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, AActor* FloorActor , bool LandHit, int32 ShortestIndex, FVector RoofLoc);
+	void ServerFindPlacementLocation(const FVector Client, const FRotator ClientRotation, const int32 BuildObjectNum,  AActor* FloorActor, const bool LandHit, const int32 ShortestIndex, const FVector RoofLoc);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastFindPlacementLocation(FVector Client, FRotator ClientRotation, int32 BuildObjectNum, int32 ShortestIndex, bool LandHit, FVector RoofLoc);
+	void MulticastFindPlacementLocation(const FVector Client, const FRotator ClientRotation, const int32 BuildObjectNum, const int32 ShortestIndex, const bool LandHit, const FVector RoofLoc);
 
 
 //other	
@@ -271,7 +277,7 @@ private:
 	
 	int32 ValueIncreaser = 1;
 	int32 z = 0;
-	int32 GrabLength = 110;
+	int32 GrabLength = 120;
 	int32 CubeIncreaser = 0;
 
 	FVector LengthOfGrabber;
@@ -281,8 +287,6 @@ private:
 	FRotator PlacementRotation;
 	
 	FCollisionQueryParams TraceParams;
-	
-	
 
 	UCapsuleComponent* PlayerCapsule;
 	AFloor* Floor;

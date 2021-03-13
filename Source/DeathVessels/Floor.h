@@ -19,7 +19,8 @@ public:
 	// Sets default values for this actor's properties
 	AFloor();
 
-	void PontoonLocation(FVector Location);
+
+	void SetFloorShape(int32 BuildingNum);
 
 	void OverlapTrace();
 	void BlockTrace();
@@ -58,5 +59,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Materials")
 	UMaterialInterface* Original;
 
+	UPROPERTY(EditAnywhere, Category = "Shape")
+	UStaticMesh* Triangle;
+
+	UPROPERTY(EditAnywhere, Category = "Shape")
+	UStaticMesh* Cube;
 
 };

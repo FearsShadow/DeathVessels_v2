@@ -45,10 +45,16 @@ void AFloor::MaterialRed()
 	FloorBase->SetMaterial(0, Red);
 }
 
-void AFloor::PontoonLocation(FVector Location)
+void AFloor::SetFloorShape(int32 BuildingNum)
 {
-	
+	FloorBase->SetStaticMesh(Cube);
+	if(BuildingNum == 3)
+	{
+		FloorBase->SetStaticMesh(Triangle);
+	}
 }
+
+
 
 void AFloor::BlockDisplay()
 {
