@@ -19,7 +19,6 @@ public:
 	// Sets default values for this actor's properties
 	AFloor();
 
-
 	void SetFloorShape(int32 BuildingNum);
 
 	void OverlapTrace();
@@ -38,9 +37,14 @@ public:
 
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* FloorBase;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shape")
+	UStaticMesh* Triangle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shape")
+	UStaticMesh* Cube;
 		
 protected:
 	// Called when the game starts or when spawned
@@ -49,6 +53,7 @@ protected:
 private:
 	float FloorHealth = 100;
 
+	int32 Number = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Materials")
 	UMaterialInterface* Green;
@@ -59,10 +64,5 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Materials")
 	UMaterialInterface* Original;
 
-	UPROPERTY(EditAnywhere, Category = "Shape")
-	UStaticMesh* Triangle;
-
-	UPROPERTY(EditAnywhere, Category = "Shape")
-	UStaticMesh* Cube;
 
 };

@@ -728,9 +728,9 @@ void AMyCharacter::ServerCleanupBuild_Implementation()
 void AMyCharacter::BP_FindPlacementLocation(const int32 BuildingPiece)
 {
 	//input function ran off leftclick
+	
 	if(!HasAuthority())
 	{	
-		
 		if(OutHit.GetActor() != nullptr && AllowedPlacement && AllowBuilding)
 		{	
 			ServerFindPlacementLocation(Floor->GetActorLocation(), Floor->GetActorRotation(), BuildingPiece, OutHit.GetActor(), LandScapeHit, IndexOfShortest, RoofLocation);
@@ -741,6 +741,8 @@ void AMyCharacter::BP_FindPlacementLocation(const int32 BuildingPiece)
 }
 void AMyCharacter::ServerFindPlacementLocation_Implementation(const FVector Client, const FRotator ClientRotation, const int32 BuildObjectNum,  AActor* FloorActor, const bool LandHit, const int32 ShortestIndex, const FVector RoofLoc)
 {
+
+
 	Floor = GetWorld()->SpawnActor<AFloor>(FloorClass);
 	//Maybe instead of using all these things like roofloc and stuff maybe you can just set a value at the end of buildkit
 	MulticastFindPlacementLocation(Client, ClientRotation, BuildObjectNum, ShortestIndex, LandHit, RoofLoc);
@@ -754,6 +756,7 @@ void AMyCharacter::ServerFindPlacementLocation_Implementation(const FVector Clie
 	else
 	{
 		Floor->AttachToActor(FloorActor, FAttachmentTransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, false));
+		
 		ChildActors = Floor;
 		FloorsArray.Add(ChildActors);
 
@@ -773,6 +776,7 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector C
 	{
 		//landscape is hit
 		
+		Floor->SetFloorShape(BuildObjectNum);
 		if(BuildObjectNum == 0 )
 		{
 			Floor->SetActorScale3D(BuildingTypes[BuildObjectNum] + FVector(0,0, 0.5));
@@ -787,7 +791,7 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector C
 		{
 			Floor->SetActorLocation(Client);
 		}
-		else if(BuildObjectNum == 0)
+		else if(BuildObjectNum == 0 || BuildObjectNum == 3)
 		{
 			Floor->SetActorLocation(FloorSnapConversions[ShortestIndex]);
 		}
@@ -800,6 +804,7 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector C
 		else if(BuildObjectNum == 2)
 		{
 			Floor->SetActorLocation(RoofLoc);
+
 		}
 		
 			
@@ -825,7 +830,7 @@ void AMyCharacter::BP_BuildMenu(int32 BuildingPiece)
 	AllowedPlacement = false;
 	
 }
-void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
+void AMyCharacter::BP_BuildKit(int32 BuildingPiece) 
 {
 	//BuildingPiece 0 is floors && roofs
 	GetController()->GetPlayerViewPoint(Location, Rotation);
@@ -858,7 +863,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 		else if(OutHit.GetActor() != nullptr)
 		{
 			Floor->OverlapTrace();
-			if(BuildingPiece == 0 && LandScapeHit)
+			if((BuildingPiece == 0 || BuildingPiece == 3)&& LandScapeHit)
 			{
 			//is this trace needed?
 				bool FloorCheck = GetWorld()->LineTraceSingleByChannel(CubeHit, Floor->GetActorLocation() + FVector(0, 0, 35), (Floor->GetActorLocation() + FVector(0, 0, 35) + FRotator(-90, 0,0).Vector() * 140), ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
@@ -1059,7 +1064,6 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 		
 
 }
-
 //
 void AMyCharacter::ServerSwitchUp_Implementation(int32 BuildingPiece)
 {
@@ -1080,7 +1084,7 @@ int32 AMyCharacter::BP_SwitchUp(int32 BuildingPiece)
 	if (AllowBuilding && BuildingPiece < 3)
 	{
 		++BuildingPiece;
-
+		UE_LOG(LogTemp, Warning, TEXT("%i"), BuildingPiece)
 		Floor->SetFloorShape(BuildingPiece);
 		Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
 		AllowedPlacement = false;

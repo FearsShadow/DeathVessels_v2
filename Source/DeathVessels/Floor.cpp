@@ -3,7 +3,7 @@
 #include "Floor.h"
 #include "AssaultRifle.h"
 #include "Hatchet.h"
-
+#include "UObject/UObjectGlobals.h"
 
 
 //this whole thing may be uneeded
@@ -14,15 +14,34 @@ AFloor::AFloor()
 
 	FloorBase = CreateDefaultSubobject<UStaticMeshComponent>("FloorBase");
 
-	
 	SetRootComponent(FloorBase);
 }
 
+
 // Called when the game starts or when spawned
+void AFloor::SetFloorShape(int32 BuildingNum)
+{
+
+	if(BuildingNum == 3)
+	{
+
+		UE_LOG(LogTemp, Warning, TEXT("money 3"))
+		FloorBase->SetStaticMesh(Triangle);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("not num 3"))
+		FloorBase->SetStaticMesh(Cube);
+
+	}
+	
+}
 void AFloor::BeginPlay()
 {
 	Super::BeginPlay();
 	FloorHealth = 100;
+
+
 	
 }
 
@@ -45,14 +64,6 @@ void AFloor::MaterialRed()
 	FloorBase->SetMaterial(0, Red);
 }
 
-void AFloor::SetFloorShape(int32 BuildingNum)
-{
-	FloorBase->SetStaticMesh(Cube);
-	if(BuildingNum == 3)
-	{
-		FloorBase->SetStaticMesh(Triangle);
-	}
-}
 
 
 
