@@ -58,7 +58,6 @@ void AMyCharacter::BeginPlay()
 
 	TraceParams.AddIgnoredActor(this);
 	
-
 	FloorSnapLocation.Add(FVector(-350, 0, 0));
 	FloorSnapLocation.Add(FVector(350, 0, 0));
 	FloorSnapLocation.Add(FVector(0, 350, 0));
@@ -77,7 +76,15 @@ void AMyCharacter::BeginPlay()
 	FloorSnapConversions.Add(FVector(-100, -100, 0));
 	FloorSnapConversions.Add(FVector(100, -100, 0));
 	
+	FloorTriangleSnapLocation.Add(FVector(-75.70, 0,0));
+	FloorTriangleSnapLocation.Add(FVector(75.70, 0,0));
+	FloorTriangleSnapLocation.Add(FVector(0, 75.70,0));
+	FloorTriangleSnapLocation.Add(FVector(0, -75.70,0));
 
+	FloorTriangleSnapConversion.Add(FVector(-265,0,0));
+	FloorTriangleSnapConversion.Add(FVector(265,0,0));
+	FloorTriangleSnapConversion.Add(FVector(0,265,0));
+	FloorTriangleSnapConversion.Add(FVector(0,-265,0));
 
 	WallSnapLocation.Add(FVector(-165, 0, 0));
 	WallSnapLocation.Add(FVector(165, 0, 0));
@@ -105,7 +112,7 @@ void AMyCharacter::BeginPlay()
 	BuildingTypes.Add(FVector(3.5f, 3.5f, 1.f));
 	BuildingTypes.Add(FVector(0.2f, 3.5f, 3.f));
 	BuildingTypes.Add(FVector(3.5f, 3.5f, 0.3f));
-	BuildingTypes.Add(FVector(1.9f, 1.8f, 0.7f));
+	BuildingTypes.Add(FVector(2.021f, 1.8f, 0.75f));
 
 	FindPlayer();
 }
@@ -791,7 +798,7 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector C
 		{
 			Floor->SetActorLocation(Client);
 		}
-		else if(BuildObjectNum == 0 || BuildObjectNum == 3)
+		else if(BuildObjectNum == 0 )
 		{
 			Floor->SetActorLocation(FloorSnapConversions[ShortestIndex]);
 		}
@@ -805,6 +812,10 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector C
 		{
 			Floor->SetActorLocation(RoofLoc);
 
+		}
+		else if(BuildObjectNum == 3)
+		{
+			Floor->SetActorLocation(FloorTriangleSnapLocation[ShortestIndex]);
 		}
 		
 			
@@ -903,7 +914,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 
 			//don't try to use buildtype values that use floats as then it leads to the system getting bugged.
 			//by using indexofshortest and floornsnaplocation
-			if (BuildingPiece == 0 )
+			if (BuildingPiece == 0)
 			{
 				//Floor snap
 				
@@ -924,6 +935,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 					FVector FloorStart = Floor->GetActorLocation() + FVector(0,0, 60);
 					bool FloorCheck = GetWorld()->LineTraceSingleByChannel(CubeHit, FloorStart, (FloorStart + FRotator(-90, 0,0).Vector() * 140), ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
 					
+				
 					if(FloorCheck)
 					{
 						AllowedPlacement = true;
@@ -1050,6 +1062,62 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 					Floor->MaterialGreen();
 					AllowedPlacement = true;	
 				}
+			}
+			else if(BuildingPiece == 3)
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					if (FVector::Distance(LineTraceEnd, FloorTriangleSnapLocation[i] + OutHit.GetActor()->GetActorLocation()) < ShortestDistance)
+					{
+						ShortestDistance = FVector::Distance(LineTraceEnd, FloorTriangleSnapLocation[i] + OutHit.GetActor()->GetActorLocation());
+						IndexOfShortest = i;
+					}
+				}				
+
+
+				if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[0].X)
+				{
+					Floor->OverlapTrace();
+					
+
+					Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation()  + FloorTriangleSnapConversion[IndexOfShortest]);
+					FVector FloorStart = Floor->GetActorLocation() + FVector(0,0, 60);
+					bool FloorCheck = GetWorld()->LineTraceSingleByChannel(CubeHit, FloorStart, (FloorStart + FRotator(-90, 0,0).Vector() * 140), ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
+					
+						if(IndexOfShortest == 0)
+						{
+							Floor->SetActorRotation(FRotator(0, -90, 0));
+						}
+						else if(IndexOfShortest == 1)
+						{
+							Floor->SetActorRotation(FRotator(0, 90, 0));
+
+						}
+						else if(IndexOfShortest == 2)
+						{
+							Floor->SetActorRotation(FRotator(0,0,180));
+						}
+						else if(IndexOfShortest == 3)
+						{
+							Floor->SetActorRotation(FRotator(0,0,0));
+						}
+				
+					if(FloorCheck)
+					{
+						AllowedPlacement = true;
+						Floor->MaterialGreen();
+					}
+					else
+					{
+						AllowedPlacement = false;
+						Floor->MaterialRed();
+					}
+						
+				}
+
+
+
+					
 			}
 			else
 			{
