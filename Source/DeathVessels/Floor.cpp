@@ -24,15 +24,11 @@ void AFloor::SetFloorShape(int32 BuildingNum)
 
 	if(BuildingNum == 3)
 	{
-
-		UE_LOG(LogTemp, Warning, TEXT("money 3"))
 		FloorBase->SetStaticMesh(Triangle);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("not num 3"))
 		FloorBase->SetStaticMesh(Cube);
-
 	}
 	
 }

@@ -224,17 +224,21 @@ private:
 	FVector End;
 
 	int32 IndexOfShortest;
+	int32 Index;
+	FRotator PreviousRotation;
 	TArray<FVector> BuildingTypes;
 
 	TArray<FVector> RoofSnapLocation;
 	TArray<FVector> FloorSnapLocation;
 	TArray<FVector> WallSnapLocation;
 	TArray<FVector> FloorTriangleSnapLocation;
+	TArray<FVector> TriangleSnapLocation;
 
 	TArray<FVector> FloorSnapConversions;
 	TArray<FVector>	WallSnapConversion;
 	TArray<FVector> RoofSnapConversion;
 	TArray<FVector>	FloorTriangleSnapConversion;
+	TArray<FVector> TriangleSnapConversion;
 	
 	FVector RoofLocation;
 
@@ -260,7 +264,7 @@ private:
 	void ServerFindPlacementLocation(const FVector Client, const FRotator ClientRotation, const int32 BuildObjectNum,  AActor* FloorActor, const bool LandHit, const int32 ShortestIndex, const FVector RoofLoc);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastFindPlacementLocation(const FVector Client, const FRotator ClientRotation, const int32 BuildObjectNum, const int32 ShortestIndex, const bool LandHit, const FVector RoofLoc);
+	void MulticastFindPlacementLocation(const FVector Client, const FRotator ClientRotation, const int32 BuildObjectNum, const int32 ShortestIndex, const bool LandHit, const FVector RoofLoc, const AActor* FloorActor);
 
 
 //other	
