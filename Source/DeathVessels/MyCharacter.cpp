@@ -86,6 +86,39 @@ void AMyCharacter::BeginPlay()
 	FloorTriangleSnapConversion.Add(FVector(0,220,0));
 	FloorTriangleSnapConversion.Add(FVector(0,-220,0));
 
+	FloorToTriangleSnapLocation.Add(FVector(-191, 111, 0));
+	FloorToTriangleSnapLocation.Add(FVector(191, 111, 0));
+	FloorToTriangleSnapLocation.Add(FVector(0, -220, 0));
+	FloorToTriangleSnapLocation.Add(FVector(-191, -111, 0));
+	FloorToTriangleSnapLocation.Add(FVector(191, -111, 0));
+	FloorToTriangleSnapLocation.Add(FVector(0, 220, 0));
+	FloorToTriangleSnapLocation.Add(FVector(111, -191, 0));
+	FloorToTriangleSnapLocation.Add(FVector(111, 191 , 0));
+	FloorToTriangleSnapLocation.Add(FVector(-220, 0, 0));
+	FloorToTriangleSnapLocation.Add(FVector(-111, -191 , 0));
+	FloorToTriangleSnapLocation.Add(FVector(-111, 191 , 0));
+	FloorToTriangleSnapLocation.Add(FVector(220, 0, 0));
+	FloorToTriangleSnapLocation.Add(FVector(111, 191, 0));
+	FloorToTriangleSnapLocation.Add(FVector(111, -191, 0));
+	FloorToTriangleSnapLocation.Add(FVector(-220, 0, 0));
+
+	FloorToTriangleSnapConversion.Add(FVector(-86.5f,-50.f, 0));
+	FloorToTriangleSnapConversion.Add(FVector(86.5f,-50.f, 0));
+	FloorToTriangleSnapConversion.Add(FVector(0, 100, 0));
+	FloorToTriangleSnapConversion.Add(FVector(-86.5f, -50, 0));
+	FloorToTriangleSnapConversion.Add(FVector(86.5f, -50, 0));
+	FloorToTriangleSnapConversion.Add(FVector(0, 100, 0));
+	FloorToTriangleSnapConversion.Add(FVector(-86.5f, -50, 0));
+	FloorToTriangleSnapConversion.Add(FVector(86.5, -50, 0));
+	FloorToTriangleSnapConversion.Add(FVector(0, 100, 0));
+	FloorToTriangleSnapConversion.Add(FVector(86.5f, -50, 0));
+	FloorToTriangleSnapConversion.Add(FVector(-86.5f, -50, 0));
+	FloorToTriangleSnapConversion.Add(FVector(0, 100, 0));
+	FloorToTriangleSnapConversion.Add(FVector(-86.5f,-49.971054f, 0));
+	FloorToTriangleSnapConversion.Add(FVector(86.5f,-49.971054f, 0));
+	FloorToTriangleSnapConversion.Add(FVector(0, 100, 0));
+
+
 	TriangleSnapLocation.Add(FVector(-140.25f, 80, 0));
 	TriangleSnapLocation.Add(FVector(140.25f, 80, 0));
 	TriangleSnapLocation.Add(FVector(0, -160, 0));
@@ -117,7 +150,8 @@ void AMyCharacter::BeginPlay()
 	TriangleSnapConversion.Add(FVector(-86.5f,-49.971054f, 0));
 	TriangleSnapConversion.Add(FVector(86.5f,-49.971054f, 0));
 	TriangleSnapConversion.Add(FVector(0, 100, 0));
-	
+
+
 	//have one set for x and one for y
 	//TriangleSnapConversion.Add(FVector(-50.f, -86.599998f, 0));
 	//TriangleSnapConversion.Add(FVector(-50.f,86.599998f, 0));
@@ -855,9 +889,10 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector C
 			//gonna need to change this because when placing triangle's it doesn't always work properly
 			Floor->SetActorLocation(TriangleSnapConversion[ShortestIndex]);
 		}
-		else if(BuildObjectNum == 3 )
+		else if(BuildObjectNum == 3 && FloorTriangleSnapLocation.Num() > IndexOfShortest)
 		{	
-			//gonna need to change this because when placing triangle's it doesn't always work properly
+			//This is what is crashing, For some reason a the shortest index is different then what is expected and is a higher number when switching so it causes a crash
+			// Try using a check in the if statement stating that if floortrianglesnaplocation.Num() is greater then shortest index than it should run.
 			Floor->SetActorLocation(FloorTriangleSnapLocation[ShortestIndex]);
 			//UE_LOG(LogTemp, Warning, TEXT("%s"), *Floor->GetActorLocation())
 		}
@@ -953,6 +988,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 			Floor->OverlapDisplay();
 
 			float ShortestDistance = FVector::Distance(End, FloorSnapLocation[0] + OutHit.GetActor()->GetActorLocation());
+			float FloorToTriangleDistance = FVector::Distance(OutHit.TraceEnd, TriangleSnapLocation[0] + OutHit.GetActor()->GetActorLocation());
 			float ShortestDistanceRoof = FVector::Distance(GetOwner()->GetActorLocation(), RoofSnapLocation[0] + OutHit.GetActor()->GetActorLocation());
 			IndexOfShortest = 0;
 
@@ -972,28 +1008,32 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 
 				if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[0].X)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("%s"), *OutHit.GetActor()->GetActorLocation().ToString())
+					
 
 					Floor->OverlapTrace();
 					Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation()  + FloorSnapLocation[IndexOfShortest]);
 
 					FVector FloorStart = Floor->GetActorLocation() + FVector(0,0, 60);
 					bool FloorCheck = GetWorld()->LineTraceSingleByChannel(CubeHit, FloorStart, (FloorStart + FRotator(-90, 0,0).Vector() * 140), ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
-					UE_LOG(LogTemp, Warning, TEXT("%i"), IndexOfShortest)
+					
 					if(FloorCheck)
 					{
 						AllowedPlacement = true;
 						Floor->MaterialGreen();
+						LandScapeHit = true;
 					}
 					else
 					{
 						AllowedPlacement = false;
 						Floor->MaterialRed();
+						LandScapeHit = false;
 					}
 						
 				}
 				else if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[3].X)
 				{
+					Index = 0;
+					IndexOfShortest = 0;
 					if(FMath::RoundToNegativeInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == 89.f)
 					{
 						Floor->SetActorRotation((FRotator(0, 180, 0)  + OutHit.GetActor()->GetActorRotation()));
@@ -1021,24 +1061,43 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 						Index = 9;
 					}
 					
-					for(int32 MaxIndex = Index + 2; Index < TriangleSnapLocation.Num() &&  Index <= MaxIndex; Index++)
+					for(int32 MaxIndex = Index + 2; Index < FloorToTriangleSnapLocation.Num() &&  Index <= MaxIndex; Index++)
 					{
 
-						if (FVector::Distance(LineTraceEnd, TriangleSnapLocation[Index] + OutHit.GetActor()->GetActorLocation()) < ShortestDistance)
+						if (FVector::Distance(LineTraceEnd, FloorToTriangleSnapLocation[Index] + OutHit.GetActor()->GetActorLocation()) < ShortestDistance)
 						{
 							//Should check first if it is closer then the third shortest distance.
-							ShortestDistance = FVector::Distance(LineTraceEnd, TriangleSnapLocation[Index] + OutHit.GetActor()->GetActorLocation());
+							ShortestDistance = FVector::Distance(LineTraceEnd, FloorToTriangleSnapLocation[Index] + OutHit.GetActor()->GetActorLocation());
 							IndexOfShortest = Index;
 						}
 					}	
+					UE_LOG(LogTemp, Warning, TEXT("%i"), Index)
+					UE_LOG(LogTemp, Warning, TEXT("shortest %i"), IndexOfShortest)
+						if(IndexOfShortest == 0 || IndexOfShortest == 3 || IndexOfShortest == 6 || IndexOfShortest == 9 || IndexOfShortest == 12 || IndexOfShortest == 15)
+						{
+							Floor->SetActorRotation( FRotator(0, 29.9, 0));
+							UE_LOG(LogTemp, Warning, TEXT(" 0 %s"), *Floor->GetActorRotation().ToString())
+						}
+						else if(IndexOfShortest == 1 || IndexOfShortest == 4 || IndexOfShortest == 7 || IndexOfShortest == 10 || IndexOfShortest == 13)
+						{
+							Floor->SetActorRotation(FRotator(0, -29.9, 0));
+							UE_LOG(LogTemp, Warning, TEXT("1 %s"), *Floor->GetActorRotation().ToString())
+						}
+						else if(IndexOfShortest == 2 || IndexOfShortest == 5 || IndexOfShortest == 8 || IndexOfShortest == 11 || IndexOfShortest == 14)
+						{
+							Floor->SetActorRotation(FRotator(0, 180, 0));
+							UE_LOG(LogTemp, Warning, TEXT(" 2 %s"), *Floor->GetActorRotation().ToString())
+						}
 
 					if(IndexOfShortest != 0 && (Index != 12 || Index != 9 || Index != 6 || Index != 15) || IndexOfShortest == 0 && Index == 3)
 					{
-						Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation()  + TriangleSnapLocation[IndexOfShortest]);
+						Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation()  + FloorToTriangleSnapLocation[IndexOfShortest]);
 						PreviousRotation = Floor->GetActorRotation();
+
 
 						Floor->MaterialGreen();
 						AllowedPlacement = true;
+						LandScapeHit = true;
 					}
 					else
 					{
@@ -1046,7 +1105,9 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 
 						Floor->MaterialRed();
 						AllowedPlacement = false;
+						LandScapeHit = false;
 					}
+					
 				}
 				else
 				{
@@ -1204,11 +1265,13 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 					{
 						AllowedPlacement = true;
 						Floor->MaterialGreen();
+						LandScapeHit = true;
 					}
 					else
 					{
 						AllowedPlacement = false;
 						Floor->MaterialRed();
+						LandScapeHit = false;
 					}
 						
 				}
@@ -1229,23 +1292,22 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 					}
 					else if (FMath::RoundToNegativeInfinity(OutHit.GetActor()->GetActorRotation().Roll) == -180.f && FMath::RoundToNegativeInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == -90.f)
 					{
-						Floor->SetActorRotation((FRotator(0,  0, -180)  + OutHit.GetActor()->GetActorRotation()));
+						Floor->SetActorRotation((FRotator(0, 0, -180)  + OutHit.GetActor()->GetActorRotation()));
 						Index = 12;
 					}
 					else if(FMath::RoundToNegativeInfinity(OutHit.GetActor()->GetActorRotation().Roll) == -180.f)
 					{
-						Floor->SetActorRotation((FRotator(0,  0, -180)  + OutHit.GetActor()->GetActorRotation()));
+						Floor->SetActorRotation((FRotator(0, 0, -180)  + OutHit.GetActor()->GetActorRotation()));
 						Index = 0;
 					}
 					else if(FMath::RoundToPositiveInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == 0.f)
 					{
-						Floor->SetActorRotation((FRotator(0,0, -180)  + OutHit.GetActor()->GetActorRotation()));
+						Floor->SetActorRotation((FRotator(0, 0, -180)  + OutHit.GetActor()->GetActorRotation()));
 						Index = 3;
-
 					}
 					else if(FMath::RoundToNegativeInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == -90.f)
 					{
-						Floor->SetActorRotation((FRotator(0,0, -180)  + OutHit.GetActor()->GetActorRotation()));
+						Floor->SetActorRotation((FRotator(0, 0, -180)  + OutHit.GetActor()->GetActorRotation()));
 						Index = 9;
 					}
 					
@@ -1260,6 +1322,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 						}
 					}	
 
+					//need to the the rotation based off index somewhere overhere.
 					if(IndexOfShortest != 0 && (Index != 12 || Index != 9 || Index != 6 || Index != 15) || IndexOfShortest == 0 && Index == 3)
 					{
 						Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation()  + TriangleSnapLocation[IndexOfShortest]);
