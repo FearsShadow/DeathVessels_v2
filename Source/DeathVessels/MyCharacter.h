@@ -221,8 +221,10 @@ private:
 
 	FVector Location;
 	FRotator Rotation; 
+	FRotator WallRotationValue;
 	FVector End;
 
+	
 	int32 IndexOfShortest;
 	int32 Index;
 	FRotator PreviousRotation;
@@ -230,6 +232,7 @@ private:
 
 	TArray<FVector> RoofSnapLocation;
 	TArray<FVector> FloorSnapLocation;
+	TArray<FVector> FloorSnapLocation30;
 	TArray<FVector> WallSnapLocation;
 	TArray<FVector> FloorTriangleSnapLocation;
 	TArray<FVector> TriangleSnapLocation;
@@ -237,6 +240,7 @@ private:
 
 	TArray<FVector> FloorSnapConversions;
 	TArray<FVector>	WallSnapConversion;
+	TArray<FVector> FloorSnapConversion30;
 	TArray<FVector> RoofSnapConversion;
 	TArray<FVector>	FloorTriangleSnapConversion;
 	TArray<FVector> TriangleSnapConversion;

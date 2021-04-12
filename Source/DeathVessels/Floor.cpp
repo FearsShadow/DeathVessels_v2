@@ -70,10 +70,8 @@ void AFloor::BlockDisplay()
 }
 void AFloor::OverlapDisplay()
 {
-	if(FloorBase != nullptr)
-	{
-		FloorBase->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);	
-	}
+
+	FloorBase->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);	
 }
 
 void AFloor::Overlap()
