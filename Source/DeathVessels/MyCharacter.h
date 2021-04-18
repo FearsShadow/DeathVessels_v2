@@ -41,6 +41,8 @@ class DEATHVESSELS_API AMyCharacter : public ACharacter
 
 public:	
 //building
+	void ArrayValues();
+
 	UFUNCTION(BlueprintCallable)
 	void BP_FindPlacementLocation(int32 BuildingPiece);
 
@@ -221,13 +223,13 @@ private:
 
 	FVector Location;
 	FRotator Rotation; 
-	FRotator WallRotationValue;
 	FVector End;
 
 	
 	int32 IndexOfShortest;
 	int32 Index;
 	FRotator PreviousRotation;
+	FRotator WallRotationValue;
 	TArray<FVector> BuildingTypes;
 
 	TArray<FVector> RoofSnapLocation;
