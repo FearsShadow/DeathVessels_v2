@@ -15,6 +15,8 @@ AFloor::AFloor()
 	FloorBase = CreateDefaultSubobject<UStaticMeshComponent>("FloorBase");
 
 	SetRootComponent(FloorBase);
+
+	
 }
 
 
@@ -30,6 +32,7 @@ void AFloor::SetFloorShape(int32 BuildingNum)
 	{
 		FloorBase->SetStaticMesh(Cube);
 	}
+	FloorBase->SetAbsolute(false, true, true);
 	
 }
 void AFloor::BeginPlay()

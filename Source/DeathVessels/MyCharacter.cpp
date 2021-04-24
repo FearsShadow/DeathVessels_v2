@@ -71,11 +71,10 @@ void AMyCharacter::ArrayValues()
 	FloorTriangleSnapConversion.Add(FVector(220,0,0));
 	FloorTriangleSnapConversion.Add(FVector(0,220,0));
 	FloorTriangleSnapConversion.Add(FVector(0,-220,0));
-	FloorTriangleSnapConversion.Add(FVector(-110, -191.5,0));
-	FloorTriangleSnapConversion.Add(FVector(110, 191.5,0));
-	FloorTriangleSnapConversion.Add(FVector(-191.5, 110,0));
-	FloorTriangleSnapConversion.Add(FVector(191.5, -110,0));
-
+	FloorTriangleSnapConversion.Add(FVector(0, -78.9,0));
+	FloorTriangleSnapConversion.Add(FVector(0, 78.9,0));
+	FloorTriangleSnapConversion.Add(FVector(78.9, 0, 0));
+	FloorTriangleSnapConversion.Add(FVector(-78.9, 0, 0));
 
 	FloorToTriangleSnapLocation.Add(FVector(-191, 111, 0));
 	FloorToTriangleSnapLocation.Add(FVector(191, 111, 0));
@@ -843,7 +842,7 @@ void AMyCharacter::ServerFindPlacementLocation_Implementation(const FVector Clie
 	}
 	else
 	{
-		Floor->AttachToActor(FloorActor, FAttachmentTransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, false));
+		Floor->AttachToActor(FloorActor, FAttachmentTransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, false));
 		
 		ChildActors = Floor;
 		FloorsArray.Add(ChildActors);
@@ -878,6 +877,8 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector C
 			Floor->SetActorScale3D(BuildingTypes[BuildObjectNum]);
 		}
 		
+		Floor->SetActorRotation(ClientRotation);	
+
 		if(LandHit)
 		{
 			Floor->SetActorLocation(Client);
@@ -889,11 +890,12 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector C
 		else if(BuildObjectNum == 0 && FloorActor->GetActorScale3D().X == BuildingTypes[0].X)
 		{
 			Floor->SetActorLocation(FloorSnapConversions[ShortestIndex]);
+			Floor->SetActorRotation(FloorActor->GetActorRotation());
 		}
 		else if(BuildObjectNum == 1)
 		{
 			//time to switch this
-			Floor->SetActorLocation(WallSnapConversion[ShortestIndex]);
+			Floor->SetActorLocation(WallSnapConversion[ShortestIndex] );
 			// gonna need to mess with this
 		}
 		else if(BuildObjectNum == 2)
@@ -911,17 +913,13 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector C
 			//This is what is crashing, For some reason a the shortest index is different then what is expected and is a higher number when switching so it causes a crash
 			// Try using a check in the if statement stating that if floortrianglesnaplocation.Num() is greater then shortest index than it should run.
 			Floor->SetActorLocation(FloorTriangleSnapLocation[ShortestIndex]);
-			
-		}
-		Floor->SetActorRotation(ClientRotation);	
-		if(!LandHit && BuildObjectNum == 0 && FloorActor->GetActorScale3D().X == BuildingTypes[0].X)
-		{
 			Floor->SetActorRotation(FloorActor->GetActorRotation() - ClientRotation);
-			UE_LOG(LogTemp, Warning, TEXT("Rotation  at 0"))
-		}
 		
-		UE_LOG(LogTemp, Warning, TEXT("floor rotation %s"), *Floor->GetActorRotation().ToString())
-		UE_LOG(LogTemp, Warning, TEXT("Client rotation %s"), *ClientRotation.ToString())
+		}
+
+	
+
+
 	}
 	
 }
@@ -1136,12 +1134,12 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 						
 						if(IndexOfShortest == 2 || IndexOfShortest == 3) // can make this more accurate, by getting the direction it is at
 						{
-							Floor->SetActorRotation(FRotator(0, 90, 0));
+							Floor->SetActorRotation(FRotator(0, 90, 0) + OutHit.GetActor()->GetActorRotation());
 							
 						}
 						else
 						{
-							Floor->SetActorRotation(FRotator(0, 0, 0));
+							Floor->SetActorRotation(FRotator(0, 0, 0) + OutHit.GetActor()->GetActorRotation());
 							
 						}
 						AllowedPlacement = true;
@@ -1149,15 +1147,15 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 					else if(OutHit.GetActor()->GetActorScale3D().Z == BuildingTypes[1].Z)
 					{
 						//check
-						Floor->SetActorLocation(FVector(0, 0, 300) + OutHit.GetActor()->GetActorLocation());
+						Floor->SetActorLocation(FVector(0, 0, 100) + OutHit.GetActor()->GetActorLocation());
 						
-						if(OutHit.GetActor()->GetActorRotation() == FRotator(0,0,0))
+						if(OutHit.GetActor()->GetActorRotation() == FRotator(0,330.1f,0))
 						{
-							Floor->SetActorRotation(FRotator(0,0,0));
+							Floor->SetActorRotation(FRotator(0, 90, 0) + OutHit.GetActor()->GetActorRotation());
 						}
 						else
 						{
-							Floor->SetActorRotation(FRotator(0, 90, 0));
+							Floor->SetActorRotation(FRotator(0,0,0) + OutHit.GetActor()->GetActorRotation());
 						}
 						Floor->MaterialGreen();
 						AllowedPlacement = true;
@@ -1248,20 +1246,20 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 					
 						if(IndexOfShortest == 0)
 						{
-							Floor->SetActorRotation(FRotator(0, -90, 0));
+							Floor->SetActorRotation(FRotator(0, 3, 0));
 						}
 						else if(IndexOfShortest == 1)
 						{
-							Floor->SetActorRotation(FRotator(0, 90, 0));
+							Floor->SetActorRotation( FRotator(0, -30, 0));
 
 						}
 						else if(IndexOfShortest == 2)
 						{
-							Floor->SetActorRotation(FRotator(0,0,180));
+							Floor->SetActorRotation(FRotator(0, -30, 0));
 						}
 						else if(IndexOfShortest == 3)
 						{
-							Floor->SetActorRotation(FRotator(0,0,0));
+							Floor->SetActorRotation(FRotator(0, 30,0));
 						}
 						else if(IndexOfShortest == 4)
 						{
@@ -1273,14 +1271,15 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 						}
 						else if(IndexOfShortest == 6)
 						{
-							Floor->SetActorRotation(FRotator(0, 0, 0));
+							Floor->SetActorRotation(FRotator(0, 30, 0));
 						}
 						else if(IndexOfShortest == 7)
 						{
-							Floor->SetActorRotation(FRotator(0, -60, 0));
+							Floor->SetActorRotation(FRotator(0, -30, 0));
 						}
+						
 					UE_LOG(LogTemp, Warning, TEXT("%i shortest"), IndexOfShortest)
-					UE_LOG(LogTemp, Warning, TEXT("%i Index"), Index)
+					UE_LOG(LogTemp, Warning, TEXT("%s Rotation"), *Floor->GetActorRotation().ToString())
 					if(FloorCheck)
 					{
 						AllowedPlacement = true;
@@ -1375,10 +1374,11 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 				Floor->MaterialRed();
 				AllowedPlacement = false;
 
+				Floor->SetActorRotation(WallRotationValue);
 				if((BuildingPiece == 0 || BuildingPiece == 3) && LandScapeHit )
 				{
 					bool FloorCheck = GetWorld()->LineTraceSingleByChannel(CubeHit, Floor->GetActorLocation() + FVector(0, 0, 35), (Floor->GetActorLocation() + FVector(0, 0, 35) + FRotator(-90, 0,0).Vector() * 140), ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
-			
+					Floor->SetActorRotation(FRotator(0,0,0));
 					if (FloorCheck)
 					{
 					
@@ -1403,7 +1403,6 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 					}
 					
 				}
-				Floor->SetActorRotation(WallRotationValue);
 
 			}
 			
