@@ -146,20 +146,23 @@ void AMyCharacter::ArrayValues()
 
 	TriangleWallSnapLocation.Add(FVector(-66, -16.5, 220));
 	TriangleWallSnapLocation.Add(FVector(66, -16.5, 220));
+	TriangleWallSnapLocation.Add(FVector(1.5, 71.3, 220));
 	TriangleWallSnapLocation.Add(FVector(-62, 34, 220));
 	TriangleWallSnapLocation.Add(FVector(62, 34, 220));
 	TriangleWallSnapLocation.Add(FVector(-27, 66.4, 220));
 	TriangleWallSnapLocation.Add(FVector(-27, -66.4, 220));
 	TriangleWallSnapLocation.Add(FVector(27, -66.4, 220));
 	TriangleWallSnapLocation.Add(FVector(27, 65, 220));
-
+	TriangleWallSnapLocation.Add(FVector(-71, -3.3, 220));
 
 	TriangleWallSnapConversion.Add(FVector(-41, -16.5,300));
 	TriangleWallSnapConversion.Add(FVector(41, -16.5,300));
+	TriangleWallSnapConversion.Add(FVector(1, 44, 300));
 	TriangleWallSnapConversion.Add(FVector(-34.8, -27.3, 300));
 	TriangleWallSnapConversion.Add(FVector(6.3, 43.8, 300));
 	TriangleWallSnapConversion.Add(FVector(-41, -16.5,300));
 	TriangleWallSnapConversion.Add(FVector(41, -16.5,300));
+	TriangleWallSnapConversion.Add(FVector(-2, 44, 300));
 	TriangleWallSnapConversion.Add(FVector(-41, -16.5,300));
 	TriangleWallSnapConversion.Add(FVector(41, -16.5,300));
 
@@ -1195,18 +1198,18 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 					{
 						if(FMath::RoundToPositiveInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == -60)
 						{
-							IndexOfShortest = 2;
-							Index = 2;
+							IndexOfShortest = 3;
+							Index = 3;
 						}
 						else if(FMath::RoundToPositiveInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == -89)
 						{
-							IndexOfShortest = 4;
-							Index = 4;
+							IndexOfShortest = 5;
+							Index = 5;
 						}
 						else if(FMath::RoundToPositiveInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == 90)
 						{
-							IndexOfShortest = 6;
-							Index = 6;
+							IndexOfShortest = 7;
+							Index = 7;
 						}
 						else
 						{
@@ -1215,7 +1218,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 						float ShortestDistanceWall = FVector::Distance(LineTraceEnd, TriangleWallSnapLocation[Index] + OutHit.GetActor()->GetActorLocation());
 
 						//If the index is not set for shortest distance it starts out with an index of 0
-						for (int32 MaxIndex = Index + 1; Index < TriangleWallSnapLocation.Num() &&  Index <= MaxIndex; Index++)
+						for (int32 MaxIndex = Index + 2; Index < TriangleWallSnapLocation.Num() &&  Index <= MaxIndex; Index++)
 						{
 							if (FVector::Distance(LineTraceEnd, TriangleWallSnapLocation[Index] + OutHit.GetActor()->GetActorLocation()) < ShortestDistanceWall)
 							{
@@ -1224,15 +1227,16 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 							}
 
 						}
-						if(IndexOfShortest == 0 || IndexOfShortest == 2 || IndexOfShortest == 4 || IndexOfShortest == 6)
+						//2 needs to be resized
+						if(IndexOfShortest == 0   || IndexOfShortest == 3 ||  IndexOfShortest == 8)
 						{
 							Floor->SetActorRotation(OutHit.GetActor()->GetActorRotation() + FRotator(0, 30,0));
 						}
-						else if(IndexOfShortest == 1 || IndexOfShortest == 5 || IndexOfShortest == 7)
+						else if(IndexOfShortest == 1  || IndexOfShortest == 6 || IndexOfShortest == 5 )
 						{
 							Floor->SetActorRotation(OutHit.GetActor()->GetActorRotation() + FRotator(0, -30,0));
 						}
-						else if(IndexOfShortest == 3)
+						else if(IndexOfShortest == 2 || IndexOfShortest == 4 || IndexOfShortest == 7)
 						{
 							Floor->SetActorRotation(OutHit.GetActor()->GetActorRotation() + FRotator(0, -90,0));
 						}
