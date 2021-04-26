@@ -236,12 +236,14 @@ private:
 	TArray<FVector> FloorSnapLocation;
 	TArray<FVector> FloorSnapLocation30;
 	TArray<FVector> WallSnapLocation;
+	TArray<FVector> TriangleWallSnapLocation;
 	TArray<FVector> FloorTriangleSnapLocation;
 	TArray<FVector> TriangleSnapLocation;
 	TArray<FVector> FloorToTriangleSnapLocation;
 
 	TArray<FVector> FloorSnapConversions;
 	TArray<FVector>	WallSnapConversion;
+	TArray<FVector> TriangleWallSnapConversion;
 	TArray<FVector> FloorSnapConversion30;
 	TArray<FVector> RoofSnapConversion;
 	TArray<FVector>	FloorTriangleSnapConversion;
