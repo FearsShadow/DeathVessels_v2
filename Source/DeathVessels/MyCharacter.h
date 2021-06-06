@@ -50,7 +50,7 @@ public:
 	void BP_CleanupBuild();
 
 	UFUNCTION(BlueprintCallable)
-	void BP_BuildKit(int32 BuildingPiece);
+	void BP_BuildKit(int32 BuildingPiece, int32& ExitBuildingPiece);
 
 	UFUNCTION(BlueprintCallable)
 	void BP_BuildMenu(int32 BuildingPiece);
@@ -225,7 +225,7 @@ private:
 	FRotator Rotation; 
 	FVector End;
 
-	
+
 	int32 IndexOfShortest;
 	int32 Index;
 	FRotator PreviousRotation;

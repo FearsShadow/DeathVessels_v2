@@ -44,6 +44,12 @@ public:
 	UStaticMesh* Triangle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shape")
+	UStaticMesh* TriangleWall;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shape")
+	UStaticMesh* Floor;
+		
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shape")
 	UStaticMesh* Cube;
 		
 protected:

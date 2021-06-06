@@ -35,6 +35,12 @@ void AMyCharacter::ArrayValues()
 	//To calculate location it's just using absolute location and then subtracting the values
 	// For Relative it's just where it's located without subtraction relitviily
 
+
+
+
+
+	//Check outhit and figure out if then subtract the x and y
+
 	FloorSnapLocation.Add(FVector(-280, 0, 0));
 	FloorSnapLocation.Add(FVector(280, 0, 0));
 	FloorSnapLocation.Add(FVector(0, 280, 0));
@@ -48,36 +54,14 @@ void AMyCharacter::ArrayValues()
 	FloorSnapLocation.Add(FVector(-242, -139.201f, 0 ));
 	FloorSnapLocation.Add(FVector(242, 139.201f, 0 ));
 
-	FloorSnapConversions.Add(FVector(-100, 0, 0));
-	FloorSnapConversions.Add(FVector(100, 0, 0));
-	FloorSnapConversions.Add(FVector(0, 100, 0));
-	FloorSnapConversions.Add(FVector(0, -100, 0));
-	FloorSnapConversions.Add(FVector(100, 0, 0));
-	FloorSnapConversions.Add(FVector(-100, 0, 0));
-	FloorSnapConversions.Add(FVector(0, -100, 0));
-	FloorSnapConversions.Add(FVector(0, 100, 0));
-	FloorSnapConversions.Add(FVector(0, -100, 0));
-	FloorSnapConversions.Add(FVector(0, 100, 0));
-	FloorSnapConversions.Add(FVector(-100, 0, 0));
-	FloorSnapConversions.Add(FVector(100, 0, 0));
-
-	FloorTriangleSnapLocation.Add(FVector(-78.90, 0,0));
-	FloorTriangleSnapLocation.Add(FVector(78.90, 0,0));
-	FloorTriangleSnapLocation.Add(FVector(0, 78.90,0));
-	FloorTriangleSnapLocation.Add(FVector(0, -78.90,0));
+	FloorTriangleSnapLocation.Add(FVector(-221, 0,0));
+	FloorTriangleSnapLocation.Add(FVector(221, 0,0));
+	FloorTriangleSnapLocation.Add(FVector(0, 221,0));
+	FloorTriangleSnapLocation.Add(FVector(0, -221,0));
 	FloorTriangleSnapLocation.Add(FVector(-110, -191.5,0));
 	FloorTriangleSnapLocation.Add(FVector(110, 191.5,0));
 	FloorTriangleSnapLocation.Add(FVector(-191.5, 110,0));
 	FloorTriangleSnapLocation.Add(FVector(191.5, -110,0));
-
-	FloorTriangleSnapConversion.Add(FVector(-220,0,0));
-	FloorTriangleSnapConversion.Add(FVector(220,0,0));
-	FloorTriangleSnapConversion.Add(FVector(0,220,0));
-	FloorTriangleSnapConversion.Add(FVector(0,-220,0));
-	FloorTriangleSnapConversion.Add(FVector(0, -78.9,0));
-	FloorTriangleSnapConversion.Add(FVector(0, 78.9,0));
-	FloorTriangleSnapConversion.Add(FVector(78.9, 0, 0));
-	FloorTriangleSnapConversion.Add(FVector(-78.9, 0, 0));
 
 	FloorToTriangleSnapLocation.Add(FVector(-191, 111, 0));
 	FloorToTriangleSnapLocation.Add(FVector(191, 111, 0));
@@ -96,21 +80,6 @@ void AMyCharacter::ArrayValues()
 	FloorToTriangleSnapLocation.Add(FVector(-220, 0, 0));
 
 //FIRST ONE
-	FloorToTriangleSnapConversion.Add(FVector(-118.f, -68.f, 0));
-	FloorToTriangleSnapConversion.Add(FVector(118.f, -68.f, 0));
-	FloorToTriangleSnapConversion.Add(FVector(0, -136, 0));
-	FloorToTriangleSnapConversion.Add(FVector(-118.f,-68.f, 0));
-	FloorToTriangleSnapConversion.Add(FVector(118.f,-68.f, 0));
-	FloorToTriangleSnapConversion.Add(FVector(0, 136, 0));
-	FloorToTriangleSnapConversion.Add(FVector(-118.f,-68.f, 0));
-	FloorToTriangleSnapConversion.Add(FVector(118.f,-68.f, 0));
-	FloorToTriangleSnapConversion.Add(FVector(-136, 0, 0));
-	FloorToTriangleSnapConversion.Add(FVector(118.f,-68.f, 0));
-	FloorToTriangleSnapConversion.Add(FVector(-118.f,-68.f, 0));
-	FloorToTriangleSnapConversion.Add(FVector(136, 0, 0));
-	FloorToTriangleSnapConversion.Add(FVector(118.f, -68.f, 0));
-	FloorToTriangleSnapConversion.Add(FVector(-118.f, -68.f, 0));
-	FloorToTriangleSnapConversion.Add(FVector(-136, 0, 0));
 
 	TriangleSnapLocation.Add(FVector(-140.25f, 80, 0));
 	TriangleSnapLocation.Add(FVector(140.25f, 80, 0));
@@ -128,70 +97,33 @@ void AMyCharacter::ArrayValues()
 	TriangleSnapLocation.Add(FVector(80, -140.25f, 0));
 	TriangleSnapLocation.Add(FVector(-160, 0, 0));
 
-	TriangleSnapConversion.Add(FVector(-86.5f,-50.f, 0));
-	TriangleSnapConversion.Add(FVector(0, 100, 0));
-	TriangleSnapConversion.Add(FVector(86.5f,-50.f, 0));
-	TriangleSnapConversion.Add(FVector(-86.5f, -50, 0));
-	TriangleSnapConversion.Add(FVector(86.5f, -50, 0));
-	TriangleSnapConversion.Add(FVector(0, 100, 0));
-	TriangleSnapConversion.Add(FVector(-86.5f, -50, 0));
-	TriangleSnapConversion.Add(FVector(86.5, -50, 0));
-	TriangleSnapConversion.Add(FVector(0, 100, 0));
-	TriangleSnapConversion.Add(FVector(86.5f, -50, 0));
-	TriangleSnapConversion.Add(FVector(-86.5f, -50, 0));
-	TriangleSnapConversion.Add(FVector(0, 100, 0));
-	TriangleSnapConversion.Add(FVector(-86.5f,-49.971054f, 0));
-	TriangleSnapConversion.Add(FVector(86.5f,-49.971054f, 0));
-	TriangleSnapConversion.Add(FVector(0, 100, 0));
-
-	TriangleWallSnapLocation.Add(FVector(-66, -16.5, 220));
-	TriangleWallSnapLocation.Add(FVector(66, -16.5, 220));
-	TriangleWallSnapLocation.Add(FVector(1.5, 71.3, 220));
-	TriangleWallSnapLocation.Add(FVector(-62, 34, 220));
-	TriangleWallSnapLocation.Add(FVector(62, 34, 220));
-	TriangleWallSnapLocation.Add(FVector(-27, 66.4, 220));
-	TriangleWallSnapLocation.Add(FVector(-27, -66.4, 220));
-	TriangleWallSnapLocation.Add(FVector(27, -66.4, 220));
-	TriangleWallSnapLocation.Add(FVector(27, 65, 220));
-	TriangleWallSnapLocation.Add(FVector(-71, -3.3, 220));
-
-	TriangleWallSnapConversion.Add(FVector(-41, -16.5,300));
-	TriangleWallSnapConversion.Add(FVector(41, -16.5,300));
-	TriangleWallSnapConversion.Add(FVector(1, 44, 300));
-	TriangleWallSnapConversion.Add(FVector(-34.8, -27.3, 300));
-	TriangleWallSnapConversion.Add(FVector(6.3, 43.8, 300));
-	TriangleWallSnapConversion.Add(FVector(-41, -16.5,300));
-	TriangleWallSnapConversion.Add(FVector(41, -16.5,300));
-	TriangleWallSnapConversion.Add(FVector(-2, 44, 300));
-	TriangleWallSnapConversion.Add(FVector(-41, -16.5,300));
-	TriangleWallSnapConversion.Add(FVector(41, -16.5,300));
+	TriangleWallSnapLocation.Add(FVector(0, 0, -7.3));
+	TriangleWallSnapLocation.Add(FVector(-0.41, 0.534, -7.3));
+	TriangleWallSnapLocation.Add(FVector(-0.190, 1.112, -7.3));
+	TriangleWallSnapLocation.Add(FVector(-0.03, -0.1, -7.3));
+	TriangleWallSnapLocation.Add(FVector(0.611, -0.139, -7.3));
+	TriangleWallSnapLocation.Add(FVector(0.3, 0.07, -7.3));
+	TriangleWallSnapLocation.Add(FVector(-0.84, 0.225, -7.3));
+	TriangleWallSnapLocation.Add(FVector(-0.3, 0.534, -7.3));
+	TriangleWallSnapLocation.Add(FVector(0, 0, -7.3));
+	TriangleWallSnapLocation.Add(FVector(0.2, 0.5, -7.3));
 
 	WallSnapLocation.Add(FVector(-130, 0, 0));
 	WallSnapLocation.Add(FVector(130, 0, 0));
 	WallSnapLocation.Add(FVector(0, 130, 0));
 	WallSnapLocation.Add(FVector(0, -130, 0));
 
-	WallSnapConversion.Add(FVector(-46.45, 0, 150));
-	WallSnapConversion.Add(FVector(46.45, 0, 150));
-	WallSnapConversion.Add(FVector(0, 46.45, 150));
-	WallSnapConversion.Add(FVector(0, -46.45, 150));
-
-
 	RoofSnapLocation.Add(FVector(-280, 0 , 0));
 	RoofSnapLocation.Add(FVector(280, 0 , 0));
 	RoofSnapLocation.Add(FVector(0, 280, 0));
 	RoofSnapLocation.Add(FVector(0, -280 , 0));
 
-	RoofSnapConversion.Add(FVector(-100, 0 , 0));
-	RoofSnapConversion.Add(FVector(100, 0 , 0));
-	RoofSnapConversion.Add(FVector(0, 100, 0));
-	RoofSnapConversion.Add(FVector(0, -100 , 0));
-
 	//Lengths of the different things like walls, floors etc
-	BuildingTypes.Add(FVector(2.8f, 2.8f, 1.f));
+	BuildingTypes.Add(FVector(1.4, 1.4, 1.f));
 	BuildingTypes.Add(FVector(0.2f, 2.8f, 3.f));
 	BuildingTypes.Add(FVector(2.8f, 2.8f, 0.3f));
 	BuildingTypes.Add(FVector(1.62f, 1.62f, 0.75f));
+	BuildingTypes.Add(FVector(1,1,1));
 }
 
 
@@ -241,7 +173,6 @@ void AMyCharacter::Tick(float DeltaTime)
 			GetWorld()->LineTraceSingleByChannel(OutHit, PlacementLocation, LineTraceEnd, ECC_Visibility, TraceParams);
 		}
 	}
-	
 	
 	
 	if (Handle->GetGrabbedComponent() != nullptr)
@@ -419,10 +350,7 @@ void AMyCharacter::ServerWeapon1_Implementation()
 		IsHatchet = false;
 		ServerWeapon1();	
 	}
-	if(AR == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed"))
-	}
+	
 }
 
 void AMyCharacter::ServerWeapon2_Implementation()
@@ -837,14 +765,20 @@ void AMyCharacter::ServerCleanupBuild_Implementation()
 }
 
 //perfect for system with bp just needs to be called upon
-void AMyCharacter::BP_FindPlacementLocation(const int32 BuildingPiece)
+void AMyCharacter::BP_FindPlacementLocation(int32 BuildingPiece)
 {
 	//input function ran off leftclick
 	
 	if(!HasAuthority())
 	{	
+
 		if(OutHit.GetActor() != nullptr && AllowedPlacement && AllowBuilding)
 		{	
+			//if building piece is == 1 and outhit is triangle then change building piece.
+			if(BuildingPiece == 1 && OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[3].X)
+			{
+				BuildingPiece = 4;
+			}
 			ServerFindPlacementLocation(Floor->GetActorLocation(), Floor->GetActorRotation(), BuildingPiece, OutHit.GetActor(), LandScapeHit, IndexOfShortest, RoofLocation);
 	
 		}	
@@ -866,7 +800,7 @@ void AMyCharacter::ServerFindPlacementLocation_Implementation(const FVector Clie
 	}
 	else if(!LandHit)
 	{
-		Floor->AttachToActor(FloorActor, FAttachmentTransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, false));
+		Floor->AttachToActor(FloorActor, FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, false));
 		
 		ChildActors = Floor;
 		FloorsArray.Add(ChildActors);
@@ -887,7 +821,7 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector C
 	if(Floor != nullptr )
 	{
 		//landscape is hit
-		if(BuildObjectNum < 4)
+		if(BuildObjectNum < 5)
 		{
 			Floor->SetFloorShape(BuildObjectNum);
 		}
@@ -902,44 +836,14 @@ void AMyCharacter::MulticastFindPlacementLocation_Implementation(const FVector C
 		}
 		
 		Floor->SetActorRotation(ClientRotation);	
+		Floor->SetActorLocation(Client);
 
-		if(LandHit)
+		if(BuildObjectNum == 1 && FloorActor->GetActorScale3D().X == BuildingTypes[3].X)
 		{
-			Floor->SetActorLocation(Client);
-		}
-		else if(BuildObjectNum == 0 && FloorActor->GetActorScale3D().X == BuildingTypes[3].X)
-		{
-			Floor->SetActorLocation(FloorToTriangleSnapConversion[ShortestIndex]);
-		}
-		else if(BuildObjectNum == 0 && FloorActor->GetActorScale3D().X == BuildingTypes[0].X)
-		{
-			Floor->SetActorLocation(FloorSnapConversions[ShortestIndex]);
-		}
-		else if(BuildObjectNum == 1 && FloorActor->GetActorScale3D().X == BuildingTypes[3].X)
-		{
-			Floor->SetActorLocation(TriangleWallSnapConversion[ShortestIndex]);
+			
 			Floor->SetActorScale3D(Floor->GetActorScale3D() - FVector(0, 0.2,0));
 		}
-		else if(BuildObjectNum == 1 && FloorActor->GetActorScale3D().X != BuildingTypes[3].X)
-		{
-			Floor->SetActorLocation(WallSnapConversion[ShortestIndex]);
-		}
-		else if(BuildObjectNum == 2)
-		{
-			Floor->SetActorLocation(RoofLoc);
-		
-		}
-		else if(BuildObjectNum == 3 && FloorActor->GetActorScale3D().X == BuildingTypes[3].X)
-		{	
-			//gonna need to change this because when placing triangle's it doesn't always work properly
-			Floor->SetActorLocation(TriangleSnapConversion[ShortestIndex]);
-		}
-		else if(BuildObjectNum == 3 && FloorTriangleSnapLocation.Num() > IndexOfShortest)
-		{	
-			//This is what is crashing, For some reason a the shortest index is different then what is expected and is a higher number when switching so it causes a crash
-			// Try using a check in the if statement stating that if floortrianglesnaplocation.Num() is greater then shortest index than it should run.
-			Floor->SetActorLocation(FloorTriangleSnapLocation[ShortestIndex]);		
-		}
+
 
 	
 
@@ -957,13 +861,15 @@ void AMyCharacter::BP_BuildMenu(int32 BuildingPiece)
 	Floor = GetWorld()->SpawnActor<AFloor>(FloorClass);
 	
 	Floor->SetFloorShape(BuildingPiece);
+	//needs to be modified to be variable
+
 	Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
 	Floor->Overlap(); //may cause issue
 	AllowBuilding = true; 
 	AllowedPlacement = false;
 	
 }
-void AMyCharacter::BP_BuildKit(int32 BuildingPiece) 
+void AMyCharacter::BP_BuildKit(int32 BuildingPiece, int32& ExitBuildingPiece) 
 {
 	//BuildingPiece 0 is floors && roofs
 	GetController()->GetPlayerViewPoint(Location, Rotation);
@@ -1011,7 +917,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 			//don't try to use buildtype values that use floats as then it leads to the system getting bugged.
 			if (BuildingPiece == 0)
 			{
-
+				UE_LOG(LogTemp, Warning, TEXT("in 0"))
 				if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[0].X)
 				{
 					Index = 0;
@@ -1132,6 +1038,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 			}
 			else if(BuildingPiece == 1)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("in 1"))
 				//Wall Snap
 
 
@@ -1196,60 +1103,16 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 					}	
 					else if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[3].X)
 					{
-						if(FMath::RoundToPositiveInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == -60)
-						{
-							IndexOfShortest = 3;
-							Index = 3;
-						}
-						else if(FMath::RoundToPositiveInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == -89)
-						{
-							IndexOfShortest = 5;
-							Index = 5;
-						}
-						else if(FMath::RoundToPositiveInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == 90)
-						{
-							IndexOfShortest = 7;
-							Index = 7;
-						}
-						else
-						{
-							Index = 0;
-						}
-						float ShortestDistanceWall = FVector::Distance(LineTraceEnd, TriangleWallSnapLocation[Index] + OutHit.GetActor()->GetActorLocation());
-
-						//If the index is not set for shortest distance it starts out with an index of 0
-						for (int32 MaxIndex = Index + 2; Index < TriangleWallSnapLocation.Num() &&  Index <= MaxIndex; Index++)
-						{
-							if (FVector::Distance(LineTraceEnd, TriangleWallSnapLocation[Index] + OutHit.GetActor()->GetActorLocation()) < ShortestDistanceWall)
-							{
-								ShortestDistanceWall = FVector::Distance(LineTraceEnd, TriangleWallSnapLocation[Index] + OutHit.GetActor()->GetActorLocation());
-								IndexOfShortest = Index;
-							}
-
-						}
-						//2 needs to be resized
-						if(IndexOfShortest == 0   || IndexOfShortest == 3 ||  IndexOfShortest == 8)
-						{
-							Floor->SetActorRotation(OutHit.GetActor()->GetActorRotation() + FRotator(0, 30,0));
-						}
-						else if(IndexOfShortest == 1  || IndexOfShortest == 6 || IndexOfShortest == 5 )
-						{
-							Floor->SetActorRotation(OutHit.GetActor()->GetActorRotation() + FRotator(0, -30,0));
-						}
-						else if(IndexOfShortest == 2 || IndexOfShortest == 4 || IndexOfShortest == 7)
-						{
-							Floor->SetActorRotation(OutHit.GetActor()->GetActorRotation() + FRotator(0, -90,0));
-						}
-                        UE_LOG(LogTemp, Warning, TEXT("%i"), IndexOfShortest)
-
-						Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation() + TriangleWallSnapLocation[IndexOfShortest]);
-						Floor->MaterialGreen();
-						AllowedPlacement = true;
+							BuildingPiece = 4;
+							Floor->SetFloorShape(BuildingPiece);
+							Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
+							
 					}
 				WallRotationValue = Floor->GetActorRotation();	
 			}
 			else if(BuildingPiece == 2)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("in 2"))
 				if(OutHit.GetActor()->GetActorScale3D().Z == BuildingTypes[1].Z)
 				{	
 						
@@ -1298,7 +1161,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 						}
 					}
 					Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation() + RoofSnapLocation[IndexOfShortest]);
-					RoofLocation = RoofSnapConversion[IndexOfShortest];
+					RoofLocation = RoofSnapLocation[IndexOfShortest];
 					Floor->MaterialGreen();
 					AllowedPlacement = true;	
 				}
@@ -1307,6 +1170,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 			}
 			else if(BuildingPiece == 3)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("in 3"))
 				if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[0].X)
 				{
 					Index = 0;
@@ -1325,7 +1189,7 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 						}
 					}
 
-						Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation()  + FloorTriangleSnapConversion[IndexOfShortest]);
+						Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation()  + FloorTriangleSnapLocation[IndexOfShortest]);
 					
 					FVector FloorStart = Floor->GetActorLocation() + FVector(0,0, 60);
 					bool FloorCheck = GetWorld()->LineTraceSingleByChannel(CubeHit, FloorStart, (FloorStart + FRotator(-90, 0,0).Vector() * 140), ECollisionChannel::ECC_GameTraceChannel2, TraceParams);
@@ -1445,6 +1309,84 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 				}			
 				WallRotationValue = Floor->GetActorRotation();
 			}
+			else if(BuildingPiece == 4)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("in 4"))
+				if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[3].X)
+				{
+					
+						if(FMath::RoundToPositiveInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == -60)
+						{
+							IndexOfShortest = 3;
+							Index = 3;
+						}
+						else if(FMath::RoundToPositiveInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == -89)
+						{
+							IndexOfShortest = 5;
+							Index = 5;
+						}
+						else if(FMath::RoundToPositiveInfinity(OutHit.GetActor()->GetActorRotation().Yaw) == 90)
+						{
+							IndexOfShortest = 7;
+							Index = 7;
+						}
+						else
+						{
+							Index = 0;
+						}
+						float ShortestDistanceWall = FVector::Distance(LineTraceEnd, TriangleWallSnapLocation[Index] + OutHit.GetActor()->GetActorLocation());
+
+						//If the index is not set for shortest distance it starts out with an index of 0
+						for (int32 MaxIndex = Index + 2; Index < TriangleWallSnapLocation.Num() &&  Index <= MaxIndex; Index++)
+						{
+							if (FVector::Distance(LineTraceEnd, TriangleWallSnapLocation[Index] + OutHit.GetActor()->GetActorLocation()) < ShortestDistanceWall)
+							{
+								ShortestDistanceWall = FVector::Distance(LineTraceEnd, TriangleWallSnapLocation[Index] + OutHit.GetActor()->GetActorLocation());
+								IndexOfShortest = Index;
+							}
+
+						}
+
+						if( IndexOfShortest == 3 || IndexOfShortest == 8 )
+						{
+							Floor->SetActorRotation(OutHit.GetActor()->GetActorRotation() + FRotator(0, -150,0));
+						}
+						else if(IndexOfShortest == 6 || IndexOfShortest == 0 || IndexOfShortest == 4 || IndexOfShortest == 7)
+						{
+							Floor->SetActorRotation(OutHit.GetActor()->GetActorRotation() + FRotator(0, -30,0));
+						}
+						else if( IndexOfShortest == 5 || IndexOfShortest == 9)
+						{
+							Floor->SetActorRotation(OutHit.GetActor()->GetActorRotation() + FRotator(0, 90,0));
+						}
+						else if(IndexOfShortest == 2 )
+						{
+							Floor->SetActorRotation(OutHit.GetActor()->GetActorRotation() + FRotator(0, -270 ,0));
+						}
+						else if(IndexOfShortest == 1)
+						{
+							Floor->SetActorRotation(OutHit.GetActor()->GetActorRotation() + FRotator(0, 210 ,0));
+						}
+                        UE_LOG(LogTemp, Warning, TEXT(" index of shortest %i"), IndexOfShortest)
+
+						Floor->SetActorLocation(OutHit.GetActor()->GetActorLocation() + TriangleWallSnapLocation[IndexOfShortest]);
+						Floor->MaterialGreen();
+						AllowedPlacement = true;
+				}
+				else if(OutHit.GetActor()->GetActorScale3D().X == BuildingTypes[0].X)
+				{
+					BuildingPiece = 1;
+					Floor->SetFloorShape(BuildingPiece);
+					Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
+				}
+				else
+				{
+					AllowedPlacement = true;
+					Floor->MaterialRed();
+					Floor->SetActorLocation(End);
+					
+				}
+			}
 			else
 			{
 				AllowedPlacement = false;
@@ -1492,14 +1434,20 @@ void AMyCharacter::BP_BuildKit(int32 BuildingPiece)
 			
 		}
 	}
-    
+    ExitBuildingPiece = BuildingPiece;
 }
 //
 void AMyCharacter::ServerSwitchUp_Implementation(int32 BuildingPiece)
 {
 	//probably gonna need this to bp
+	if(BuildingPiece == 4)
+	{
+		BuildingPiece = 1;
+	}
+
 	if(BuildingPiece < 3)
 	{
+		
 		++BuildingPiece;
 	}
 	BP_SwitchUp(BuildingPiece);
@@ -1511,9 +1459,18 @@ int32 AMyCharacter::BP_SwitchUp(int32 BuildingPiece)
 	{
 		ServerSwitchUp(BuildingPiece);
 	}
+	
+	if(BuildingPiece == 4)
+	{
+		BuildingPiece = 1;
+		UE_LOG(LogTemp, Warning, TEXT("here"))
+	}
+
 	if (AllowBuilding && BuildingPiece < 3)
 	{
+
 		++BuildingPiece;
+		UE_LOG(LogTemp, Warning, TEXT("%i"), BuildingPiece)
 		Floor->SetFloorShape(BuildingPiece);
 		Floor->SetActorScale3D(BuildingTypes[BuildingPiece]);
 		AllowedPlacement = false;
@@ -1526,6 +1483,10 @@ int32 AMyCharacter::BP_SwitchUp(int32 BuildingPiece)
 
 void AMyCharacter::ServerSwitchDown_Implementation(int32 BuildingPiece)
 {
+	if(BuildingPiece == 4)
+	{
+		BuildingPiece = 1;
+	}
 	if(BuildingPiece >= 1)
 	{
 		--BuildingPiece;
@@ -1538,6 +1499,13 @@ int32 AMyCharacter::BP_SwitchDown(int32 BuildingPiece)
 	{
 		ServerSwitchDown(BuildingPiece);
 	}
+	
+	if(BuildingPiece == 4)
+	{
+		BuildingPiece = 1;
+		UE_LOG(LogTemp, Warning, TEXT("here"))
+	}
+
 	if (AllowBuilding && BuildingPiece >= 1)
 	{
 		--BuildingPiece;

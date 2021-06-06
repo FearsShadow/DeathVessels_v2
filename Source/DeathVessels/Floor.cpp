@@ -23,16 +23,23 @@ AFloor::AFloor()
 // Called when the game starts or when spawned
 void AFloor::SetFloorShape(int32 BuildingNum)
 {
-
-	if(BuildingNum == 3)
+	if(BuildingNum == 0)
+	{
+		FloorBase->SetStaticMesh(Floor);
+	}
+	else if(BuildingNum == 3)
 	{
 		FloorBase->SetStaticMesh(Triangle);
+	}
+	else if(BuildingNum == 4)
+	{
+		FloorBase->SetStaticMesh(TriangleWall);
 	}
 	else
 	{
 		FloorBase->SetStaticMesh(Cube);
 	}
-	FloorBase->SetAbsolute(false, true, true);
+	FloorBase->SetAbsolute(true, true, true);
 	
 }
 void AFloor::BeginPlay()
