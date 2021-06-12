@@ -23,6 +23,7 @@ AFloor::AFloor()
 // Called when the game starts or when spawned
 void AFloor::SetFloorShape(int32 BuildingNum)
 {
+	//comment
 	if(BuildingNum == 0)
 	{
 		FloorBase->SetStaticMesh(Floor);

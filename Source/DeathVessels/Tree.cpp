@@ -2,6 +2,7 @@
 
 #include "Tree.h"
 #include "Hatchet.h"
+#include "TreeLog.h"
 #include "Net/UnrealNetwork.h"
 //If I set up an inputcomponet here then I can call a function from hatchet that has info from this
 
@@ -12,6 +13,8 @@ ATree::ATree()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Tree = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tree"));
+	SetRootComponent(Tree);
+	
 
 }
 
@@ -39,6 +42,9 @@ void ATree::MulticastTreePhysics_Implementation()
 {
 	Tree->SetSimulatePhysics(true);
 	Tree->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	TreeLog = GetWorld()->SpawnActor<ATreeLog>(TreeLogClass);
+	
 }
 
 

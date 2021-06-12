@@ -70,10 +70,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config, Replicated)
 	float WalkSpeed = 0.6;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config, Replicated)
+	UPROPERTY(Replicated)
 	float YInput;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config, Replicated)
+	UPROPERTY(Replicated)
 	float XInput;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config, Replicated)
@@ -317,8 +317,6 @@ private:
 
 	bool IsReloading = false;
 
-	
-	
 	bool AllowBuilding = false;
 
 	void MayReload();
@@ -332,8 +330,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AFloor> FloorClass;
-
-	
 	
 	UPROPERTY(EditAnywhere, Category = "Health")
 	int32 MaxHealth = 100;

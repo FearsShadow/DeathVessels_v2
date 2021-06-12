@@ -8,6 +8,7 @@
 #include "Tree.generated.h"
 
 class AHatchet;
+class ATreeLog;
 UCLASS()
 class DEATHVESSELS_API ATree : public AActor
 {
@@ -25,6 +26,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Confing")
 	float TreeHealth;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ATreeLog> TreeLogClass;
+
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
 	float GetTreeHealth();
@@ -36,6 +40,8 @@ protected:
 private:
 	UPROPERTY(EditAnywhere)	
 	UStaticMeshComponent* Tree;
+
+	class ATreeLog * TreeLog;
 	
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastTreePhysics();
