@@ -15,7 +15,7 @@ ATree::ATree()
 	Tree = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tree"));
 	SetRootComponent(Tree);
 	
-
+	TreeHealth = 100;
 }
 
 
@@ -23,7 +23,7 @@ ATree::ATree()
 void ATree::BeginPlay()
 {
 	Super::BeginPlay();
-	TreeHealth = 100;
+	
 	
 }
 
@@ -40,18 +40,41 @@ void ATree::Tick(float DeltaTime)
 
 void ATree::MulticastTreePhysics_Implementation()
 {
+
+//So the plan is to give the player some wood for hitting the tree and then get most of it by picking it up once a tree breaks
+
 	Tree->SetSimulatePhysics(true);
 	Tree->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
-	TreeLog = GetWorld()->SpawnActor<ATreeLog>(TreeLogClass);
+	GetWorld()->GetTimerManager().SetTimer(TimerTreeDestory, this, &ATree::ServerCleanupTree, 3, true);
+
+	if(TreeLog == nullptr)
+	{
+		TreeLog = GetWorld()->SpawnActor<ATreeLog>(TreeLogClass);
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("treelog null"));  
+	}
+	//might need to run this on server
 	
 }
 
+void ATree::ServerTreePhysics_Implementation()
+{
+	MulticastTreePhysics();
+}
 
+void ATree::ServerCleanupTree_Implementation()
+{
+	
+	// if(Tree != nullptr)
+	// {
+	// 	Tree->Destroy();
+	// }
+}
 
 float ATree::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
 {
     //checks if hatchet is the one doing the damage
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("arrived take"));  
 	const auto* IsHatchetDamaging = Cast<AHatchet>(DamageCauser);
 	if(IsHatchetDamaging)
 	{
@@ -61,13 +84,15 @@ float ATree::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEve
 		
 		UE_LOG(LogTemp, Warning, TEXT("%f"), TreeHealth)
 
-		if(TreeHealth <= 0)
+		if(TreeHealth == 0)
 		{
 			
 			
+
 			if(HasAuthority())
 			{
 				MulticastTreePhysics();
+				
 			}
 
 		}//typically the amount of damage;

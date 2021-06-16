@@ -39,9 +39,10 @@ void UInventoryTest::BeginPlay()
 // needs to be server side
 void UInventoryTest::ServerAddAmmo_Implementation(class AMyCharacter* Player)
 {
+	//This needs to be optimized a simple one could be instead of calling it on tick call it on intercations and when someone left clicks.. Currently have it only set to left click to update this
 	if(Player)
     {
-//needs to give this info to server for sure
+
 		ItemIndex = ItemName.Num(); 
 
 		if( Player->Ammo > 0)
@@ -51,7 +52,8 @@ void UInventoryTest::ServerAddAmmo_Implementation(class AMyCharacter* Player)
 				ItemName.AddUnique("Ammo");
 				ItemDescription.AddUnique("Ammo, goes very fast and hurts.");
 				ItemNum.Add(Player->Ammo);
-
+				
+				Player->RefreshInventory = true;
 			}
 			else
 			{
@@ -62,6 +64,7 @@ void UInventoryTest::ServerAddAmmo_Implementation(class AMyCharacter* Player)
 		//may be because it doesn't check if it is 0
 		if(Player->Wood > 0)
 		{
+			Player->RefreshInventory = true;
 			UE_LOG(LogTemp, Warning, TEXT("in wood"))
 			if(!ItemName.Contains("Wood"))
 			{
@@ -70,6 +73,7 @@ void UInventoryTest::ServerAddAmmo_Implementation(class AMyCharacter* Player)
 				ItemDescription.AddUnique("Pulled straight off of a tree or something. Would make a good wacking stick.");
 				//probably need to make arrays on client side, 
 				ItemNum.Add(Player->Wood);
+				
 			}
 			else
 			{

@@ -70,10 +70,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config, Replicated)
 	float WalkSpeed = 0.6;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	float YInput;
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	float XInput;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config, Replicated)
@@ -119,20 +119,25 @@ public:
 	
 //inventory variables
 	int32 Ammo = 0;
+	bool RefreshInventory = true;
 	int32 BulletsInMag;
 
 	UPROPERTY(Replicated)
 	int32 Wood = 0;
 
-//other
-
-	UFUNCTION(Server, Reliable)
+//Left click related
+	UFUNCTION(Server, Unreliable)
 	void ServerLeftClick();
 
 	void LeftClick();
 
 	void Fire();
 
+	void FireReleased();
+
+	bool IsFireHeld = false;
+
+//other
 	UFUNCTION(BlueprintCallable)
 	bool AnimationReload();
 
@@ -160,7 +165,7 @@ private:
 //InputRelated
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Unreliable)
 	void ServerFire(int32 Bullets);
 	
 	UFUNCTION(Server, Unreliable)

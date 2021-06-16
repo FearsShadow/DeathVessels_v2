@@ -29,7 +29,7 @@ void AHatchet::ServerSwing_Implementation(class AController* Pawn, class AMyChar
 	//multicast
 	if(Pawn != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Server swung"))
+		
 		FHitResult OutHit;
 		FCollisionQueryParams TraceParams;
 		Pawn->GetPlayerViewPoint(Location, Rotation);
@@ -51,6 +51,7 @@ void AHatchet::ServerSwing_Implementation(class AController* Pawn, class AMyChar
 				
 				Player->Wood +=10;
 				UE_LOG(LogTemp, Warning, TEXT("%i wood"), Player->Wood)
+				UE_LOG(LogTemp, Warning, TEXT("Arrived axe hit"))
 				
 			}	
 		}

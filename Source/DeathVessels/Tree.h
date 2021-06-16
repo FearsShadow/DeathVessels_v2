@@ -41,10 +41,19 @@ private:
 	UPROPERTY(EditAnywhere)	
 	UStaticMeshComponent* Tree;
 
+	FTimerHandle TimerTreeDestory;
+
 	class ATreeLog * TreeLog;
 	
+
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastTreePhysics();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerCleanupTree();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerTreePhysics();
 
 
 

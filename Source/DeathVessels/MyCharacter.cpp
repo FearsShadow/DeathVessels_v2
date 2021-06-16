@@ -130,7 +130,7 @@ void AMyCharacter::ArrayValues()
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	PlayerCapsule = this->GetCapsuleComponent();
 	PlayerCapsule->GetScaledCapsuleSize(OutRadius, OutHalfHeight);
 	
@@ -185,9 +185,11 @@ void AMyCharacter::Tick(float DeltaTime)
 		Handle->SetTargetLocationAndRotation(LengthOfGrabber, PlacementRotation);
 		
 	}
-	else
+
+	if(IsFireHeld == true)
 	{
-		
+		LeftClick();
+		// Works just needs to be optimized that way it only runs this if it's not already be ran
 	}
 	//interactionsystem
 	
@@ -232,6 +234,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompone
 
 	
 	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &AMyCharacter::Fire);
+	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Released, this, &AMyCharacter::FireReleased);
 	PlayerInputComponent->BindAction(TEXT("Reload"), EInputEvent::IE_Pressed, this, &AMyCharacter::Reload);
 
 	PlayerInputComponent->BindAction(TEXT("Weapon1"), EInputEvent::IE_Pressed, this, &AMyCharacter::ServerWeapon1);
@@ -348,9 +351,14 @@ void AMyCharacter::ServerWeapon1_Implementation()
 	{
 		Hatchet->Destroy();
 		IsHatchet = false;
-		ServerWeapon1();	
+		ServerWeapon1();
+		
 	}
 	
+	if(IsAR == true || IsHatchet == true)
+	{
+		ReleaseDrop();
+	}
 }
 
 void AMyCharacter::ServerWeapon2_Implementation()
@@ -378,6 +386,10 @@ void AMyCharacter::ServerWeapon2_Implementation()
 		ServerWeapon2();
 	}
 	
+	if(IsAR == true || IsHatchet == true)
+	{
+		ReleaseDrop();
+	}
 }
 
 void AMyCharacter::ServerFire_Implementation(int32 Bullets)
@@ -393,14 +405,14 @@ void AMyCharacter::ServerFire_Implementation(int32 Bullets)
 
 void AMyCharacter::Fire()
 {
-	
-	if(BulletsInMag > 0)
+	IsFireHeld = true;
+	if(BulletsInMag > 0 && IsAR)
 	{
-		if (!IsReloading && IsAR || IsPlayerControlled() == false && AR != nullptr)
+		if (!IsReloading || IsPlayerControlled() == false && AR != nullptr)
 		{
 			AR->PullTrigger(this);
 		}
-		if(!HasAuthority() && !IsReloading && IsAR || IsPlayerControlled() == false)
+		if(!HasAuthority() && !IsReloading || IsPlayerControlled() == false)
 		{
 			ServerFire(BulletsInMag);
 		}
@@ -410,10 +422,16 @@ void AMyCharacter::Fire()
 			UE_LOG(LogTemp, Error, TEXT("AR == nullptr"))
 		}
 	}
-	else if(!IsAR)
+	else
 	{
 		LeftClick();
 	}
+}
+
+void AMyCharacter::FireReleased()
+{
+	// Since it's replicated all you got
+	IsFireHeld = false;
 }
 
 void AMyCharacter::ServerLeftClick_Implementation()
@@ -436,22 +454,22 @@ void AMyCharacter::LeftClick()
 	
 	if (!IsAR && IsHatchet)
 	{
+		//if is fire is true set a timer that basically just runs serverleftclick until 
 		
 			if(!HasAuthority() && Hatchet != nullptr)
 			{
-				ServerLeftClick();
-				
+
+					ServerLeftClick();
+					UE_LOG(LogTemp, Error, TEXT("serverleftclick"))
 			}
 			else if(Hatchet != nullptr)
 			{
 				UE_LOG(LogTemp, Error, TEXT("Hatchet == nullptr"))
 			}	
 	}
-
-	else if (!IsAR && !IsHatchet)
+	else if (Handle->GetGrabbedComponent() != nullptr)
 	{
 		ReleaseDrop();
-		
 	}
 }
 	
