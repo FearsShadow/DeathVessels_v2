@@ -7,17 +7,19 @@
 #include "Components/CapsuleComponent.h"
 #include "Tree.generated.h"
 
+
 class AHatchet;
 class ATreeLog;
+class AMyCharacter;
 UCLASS()
-class DEATHVESSELS_API ATree : public AActor
+class DEATHVESSELS_API ATree : public AActor, public IMyInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ATree();
-	// Called every frame
+	ATree();	
+
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -33,6 +35,7 @@ public:
 
 	float GetTreeHealth();
 
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -45,18 +48,12 @@ private:
 
 	class ATreeLog * TreeLog;
 	
+	AActor* Log;
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastTreePhysics();
 
 	UFUNCTION(Server, Unreliable)
 	void ServerCleanupTree();
-
-	UFUNCTION(Server, Unreliable)
-	void ServerTreePhysics();
-
-
-
 	
-
 };

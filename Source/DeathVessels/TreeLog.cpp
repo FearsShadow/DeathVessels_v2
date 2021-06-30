@@ -10,6 +10,7 @@ ATreeLog::ATreeLog()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Log = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Log"));
+	SetRootComponent(Log);
 }
 
 // Called when the game starts or when spawned

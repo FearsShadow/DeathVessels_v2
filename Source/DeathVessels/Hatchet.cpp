@@ -35,7 +35,7 @@ void AHatchet::ServerSwing_Implementation(class AController* Pawn, class AMyChar
 		Pawn->GetPlayerViewPoint(Location, Rotation);
 
 		End = (Rotation.Vector() * AxeSwingDistance + Location);
-	
+
 		TraceParams.AddIgnoredActor(GetOwner());
 		TraceParams.AddIgnoredActor(this);
 		
@@ -51,9 +51,17 @@ void AHatchet::ServerSwing_Implementation(class AController* Pawn, class AMyChar
 				
 				Player->Wood +=10;
 				UE_LOG(LogTemp, Warning, TEXT("%i wood"), Player->Wood)
-				UE_LOG(LogTemp, Warning, TEXT("Arrived axe hit"))
-				
+				if(Tree != nullptr)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("%i Health of tree"), Tree->TreeHealth)
+					Interface->InteractPure();
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("tree is null"))
+				}
 			}	
+
 		}
 	}
 	

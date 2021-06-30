@@ -40,7 +40,11 @@ class DEATHVESSELS_API AMyCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:	
+
 //building
+
+
+
 	void ArrayValues();
 
 	UFUNCTION(BlueprintCallable)

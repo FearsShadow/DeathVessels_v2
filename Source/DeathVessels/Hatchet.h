@@ -34,6 +34,8 @@ private:
 	FRotator Rotation;
 	FVector End;
 
+	class IMyInterface* Interface;
+
 	ATree * Tree;
 
 	UPROPERTY(VisibleAnywhere)

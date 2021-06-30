@@ -1,9 +1,12 @@
 // Copyright Jonathan Bejarano, DeathVessels C++
 
 #include "Tree.h"
+#include "MyCharacter.h"
 #include "Hatchet.h"
 #include "TreeLog.h"
 #include "Net/UnrealNetwork.h"
+
+
 //If I set up an inputcomponet here then I can call a function from hatchet that has info from this
 
 // Sets default values
@@ -24,7 +27,6 @@ void ATree::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	
 }
 
 // Called every frame
@@ -41,40 +43,41 @@ void ATree::Tick(float DeltaTime)
 void ATree::MulticastTreePhysics_Implementation()
 {
 
-//So the plan is to give the player some wood for hitting the tree and then get most of it by picking it up once a tree breaks
+
 
 	Tree->SetSimulatePhysics(true);
 	Tree->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	Tree->SetPhysicsLinearVelocity(FVector(GetActorForwardVector().X * 600, GetActorForwardVector().Y * 600, 0));
+	// Add in a particle system effect when treee is falling
+	//Add in audio that acts as if the tree is falling over
 
-	GetWorld()->GetTimerManager().SetTimer(TimerTreeDestory, this, &ATree::ServerCleanupTree, 3, true);
-
-	if(TreeLog == nullptr)
-	{
-		TreeLog = GetWorld()->SpawnActor<ATreeLog>(TreeLogClass);
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("treelog null"));  
-	}
-	//might need to run this on server
 	
-}
-
-void ATree::ServerTreePhysics_Implementation()
-{
-	MulticastTreePhysics();
+	GetWorld()->GetTimerManager().SetTimer(TimerTreeDestory, this, &ATree::ServerCleanupTree, 1.7, false);
 }
 
 void ATree::ServerCleanupTree_Implementation()
 {
 	
-	// if(Tree != nullptr)
-	// {
-	// 	Tree->Destroy();
-	// }
+	if(Tree != nullptr)
+	{
+		FVector TreeLocation = this->GetActorLocation();
+		FRotator TreeRotation = this->GetActorRotation();
+		FActorSpawnParameters SpawnInfo;
+
+		this->Destroy();
+
+		GetWorld()->SpawnActor<ATreeLog>(TreeLogClass, TreeLocation + FVector(FMath::RandRange(50, 150), FMath::RandRange(50, 150), 0), TreeRotation, SpawnInfo);
+		GetWorld()->SpawnActor<ATreeLog>(TreeLogClass, TreeLocation + FVector(FMath::RandRange(50, 150), FMath::RandRange(50, 150), 0), TreeRotation, SpawnInfo);
+		GetWorld()->SpawnActor<ATreeLog>(TreeLogClass, TreeLocation + FVector(FMath::RandRange(50, 150), FMath::RandRange(50, 150), 0), TreeRotation, SpawnInfo);
+
+		//If interacted get a certain amount of wood
+
+	}
 }
 
 float ATree::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
 {
     //checks if hatchet is the one doing the damage
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("arrived take"));  
 	const auto* IsHatchetDamaging = Cast<AHatchet>(DamageCauser);
 	if(IsHatchetDamaging)
 	{
@@ -86,16 +89,8 @@ float ATree::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEve
 
 		if(TreeHealth == 0)
 		{
-			
-			
-
-			if(HasAuthority())
-			{
-				MulticastTreePhysics();
-				
-			}
-
-		}//typically the amount of damage;
+			MulticastTreePhysics();
+		}
     	return DamageApplied;
 	}
 	else 

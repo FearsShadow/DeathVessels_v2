@@ -12,6 +12,10 @@
 
 
 
+
+
+
+
 //
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -126,10 +130,15 @@ void AMyCharacter::ArrayValues()
 	BuildingTypes.Add(FVector(1,1,1));
 }
 
+void AMyCharacter::InteractPure()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Greetings"))
+}
 
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
 
 	PlayerCapsule = this->GetCapsuleComponent();
 	PlayerCapsule->GetScaledCapsuleSize(OutRadius, OutHalfHeight);
@@ -186,7 +195,7 @@ void AMyCharacter::Tick(float DeltaTime)
 		
 	}
 
-	if(IsFireHeld == true)
+	if(IsFireHeld == true && GetWorldTimerManager().IsTimerActive(HatchetSwingDelay) == false)
 	{
 		LeftClick();
 		// Works just needs to be optimized that way it only runs this if it's not already be ran
@@ -418,7 +427,7 @@ void AMyCharacter::Fire()
 		}
 		else if(AR == nullptr)
 		{
-			//this will sometimes happen just means you have to reset what the gunclass is in the character bp
+			//this will sometimes happen just means you have to reset what the gunclass is in the character bp or make sure the player is the client not standalone or server
 			UE_LOG(LogTemp, Error, TEXT("AR == nullptr"))
 		}
 	}
@@ -456,13 +465,12 @@ void AMyCharacter::LeftClick()
 	{
 		//if is fire is true set a timer that basically just runs serverleftclick until 
 		
-			if(!HasAuthority() && Hatchet != nullptr)
+			if(!HasAuthority() && Hatchet != nullptr && GetWorldTimerManager().IsTimerActive(HatchetSwingDelay) == false)
 			{
-
-					ServerLeftClick();
-					UE_LOG(LogTemp, Error, TEXT("serverleftclick"))
+				ServerLeftClick();
+				GetWorldTimerManager().SetTimer(HatchetSwingDelay, 1.65f, false);
 			}
-			else if(Hatchet != nullptr)
+			else if(Hatchet != nullptr && GetWorldTimerManager().IsTimerActive(HatchetSwingDelay) != false)
 			{
 				UE_LOG(LogTemp, Error, TEXT("Hatchet == nullptr"))
 			}	
@@ -1692,5 +1700,4 @@ void AMyCharacter::SwingAxeTimer()
 {
 	SwingAxe = false;
 }
-
 
