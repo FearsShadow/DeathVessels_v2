@@ -12,7 +12,7 @@ class AHatchet;
 class ATreeLog;
 class AMyCharacter;
 UCLASS()
-class DEATHVESSELS_API ATree : public AActor, public IMyInterface
+class DEATHVESSELS_API ATree : public AActor
 {
 	GENERATED_BODY()
 	

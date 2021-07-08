@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Inventory.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
+#include"MyInterface.h"
 #include "MyCharacter.generated.h"
 
 USTRUCT()
@@ -35,7 +36,7 @@ class AHatchet;
 class AFloor;
 class UPhysicsHandleComponent;
 UCLASS()
-class DEATHVESSELS_API AMyCharacter : public ACharacter
+class DEATHVESSELS_API AMyCharacter : public ACharacter, public IMyInterface
 {
 	GENERATED_BODY()
 
@@ -43,7 +44,7 @@ public:
 
 //building
 
-
+	//virtual void InteractPure() override;
 
 	void ArrayValues();
 

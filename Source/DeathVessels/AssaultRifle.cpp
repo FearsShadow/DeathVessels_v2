@@ -21,11 +21,7 @@ void AAssaultRifle::BeginPlay()
 	Super::BeginPlay();
 	
 }
-
-void AAssaultRifle::PullTrigger(class AMyCharacter* Character)
-{	
-	AmmoCalculations(Character);
-}
+//turn to interface
 
 void AAssaultRifle::MulticastBullet_Implementation(FVector FlashLocation, FVector End, bool Hit)
 {
@@ -33,7 +29,7 @@ void AAssaultRifle::MulticastBullet_Implementation(FVector FlashLocation, FVecto
 	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ShotFired, MuzzleFlashLocation);
 	if(Hit)
 	{
-					//Possible Bug with Bullet_Miss as I set a limit to amount being played under the base sound then pressed edit and then under concurrency
+		//Possible Bug with Bullet_Miss as I set a limit to amount being played under the base sound then pressed edit and then under concurrency
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ShotHit, MuzzleFlashLocation);
 	}
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, End, FRotator(0,0,0));
@@ -42,10 +38,7 @@ void AAssaultRifle::MulticastBullet_Implementation(FVector FlashLocation, FVecto
 
 void AAssaultRifle::Bullet()
 {		
-		if(HasAuthority())
-		{
-			MulticastBullet(MuzzleFlashLocation, OutHit.Location, CharacterHit);
-		}
+
 		APawn* OwnerPawn = Cast<APawn>(GetOwner());
 		if(OwnerPawn != nullptr)
 		{
@@ -86,47 +79,29 @@ void AAssaultRifle::Bullet()
 		{
 			UE_LOG(LogTemp, Error, TEXT("Ownerpawn Cast could not find an owner for the player"))
 		}
+
+		if(HasAuthority())
+		{
+			MulticastBullet(MuzzleFlashLocation, OutHit.Location, CharacterHit);
+		}
 		
 }
 
-
-
 void AAssaultRifle::AmmoCalculations(class AMyCharacter* Character)
 {	
-	APawn* PlayerPawn = Cast<APawn>(GetOwner());
-	//check here
-	if(Character->BulletsInMag > 0) 
+	//APawn* PlayerPawn = Cast<APawn>(GetOwner());
+	//Basicaly should be looking to see if it is a assault rifle equipped or not
+    UE_LOG(LogTemp, Warning, TEXT("You got ammo calculations working"))
+	if(Character->BulletsInMag > 0 ) 
     {	
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("in ammocalc %i AR"), Character->BulletsInMag));
 		Bullet();
 		Character->BulletsInMag -= BulletShot;
     }
-	else if(PlayerPawn->IsPlayerControlled() == false)
-	{
-		Bullet();
-	}
-}
-
-
-void AAssaultRifle::ReloadMagazine(class AMyCharacter* Character)
-{	
-	//when ammo left is bigger then bullets in mag
-	for(;  Character->BulletsInMag < Character->Ammo;)
-	{
-		Character->Ammo = Character->Ammo - 1;
-		Character->BulletsInMag = Character->BulletsInMag + 1;
-	
-	}
-	
-	//When bullets in mag is bigger then ammo left
-	if (Character->Ammo <= AmmoForMag)
-	{
-		for(; Character->Ammo > 0 && Character->BulletsInMag < AmmoForMag ;)
-		{
-			Character->Ammo = Character->Ammo - 1;
-			Character->BulletsInMag = Character->BulletsInMag + 1;
-
-		}
-	}
+	// else if(PlayerPawn->IsPlayerControlled() == false )
+	// {
+	// 	AR->Bullet();
+	// }
 }
 
 

@@ -130,16 +130,14 @@ void AMyCharacter::ArrayValues()
 	BuildingTypes.Add(FVector(1,1,1));
 }
 
-void AMyCharacter::InteractPure()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Greetings"))
-}
+
 
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-
+	Ammo = 25;
+	InteractPure();
 	PlayerCapsule = this->GetCapsuleComponent();
 	PlayerCapsule->GetScaledCapsuleSize(OutRadius, OutHalfHeight);
 	
@@ -415,11 +413,14 @@ void AMyCharacter::ServerFire_Implementation(int32 Bullets)
 void AMyCharacter::Fire()
 {
 	IsFireHeld = true;
+	
 	if(BulletsInMag > 0 && IsAR)
 	{
 		if (!IsReloading || IsPlayerControlled() == false && AR != nullptr)
 		{
-			AR->PullTrigger(this);
+			//do check for ammon in fire
+			AmmoCalculations(this, AR);
+			//AR->AmmoCalculations(this);
 		}
 		if(!HasAuthority() && !IsReloading || IsPlayerControlled() == false)
 		{
@@ -489,7 +490,7 @@ void AMyCharacter::Reload()
 	{
 		IsReloading = true;
 		GetWorld()->GetTimerManager().SetTimer(FireRateDelay, this, &AMyCharacter::CanFire, ReloadRate, true);
-		AR->ReloadMagazine(this);
+		ReloadMagazine(this);
 	}
 	// else if(AR == nullptr)
 	// {

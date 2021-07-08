@@ -18,16 +18,13 @@ class DEATHVESSELS_API AAssaultRifle : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AAssaultRifle();
-
-	void PullTrigger(class AMyCharacter* Character);
-
-	void ReloadMagazine(class AMyCharacter* Character);
 	
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastBullet(FVector FlashLocation, FVector End, bool Hit);
 
 	void Bullet();
 	
+	void AmmoCalculations(class AMyCharacter* Character);
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay();
@@ -52,8 +49,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "FX")
 	USoundBase* ShotHit;
 
-	UPROPERTY(EditAnywhere, Category = "Bullet")
-	int32 AmmoForMag = 15;
+	int32 BulletShot = 1;
 
 	UPROPERTY(EditAnywhere, Category = "Bullet")
 	int32 DamageAmount = 10;
@@ -62,8 +58,6 @@ private:
 	float BulletTravelDistance = -1000;
 
 	bool IsReloaded;
-	
-	void AmmoCalculations(class AMyCharacter* Character);
 
 	FVector BulletEnd;
 
@@ -71,7 +65,7 @@ private:
 
 	AActor* HitActor;
 
-	int32 BulletShot = 1;
+	
 
 	bool AllowFiring;
 

@@ -20,9 +20,18 @@ class DEATHVESSELS_API IMyInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
-public:
-//blueprint use of this
 
-	virtual void InteractPure() = 0;
+public:
+	//can also be used as virtual void  override in another function besides this and can be stall called as an interface 
+	void InteractPure();
+
+	void AmmoCalculations(class AMyCharacter* Character, class AAssaultRifle* AR);
+
+	void ReloadMagazine(class AMyCharacter* Character);
+
+	
+private:
+	int32 BulletShot = 1;
+	int32 ARAmmoForMag = 15;
+
 };
