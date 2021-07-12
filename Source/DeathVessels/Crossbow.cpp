@@ -9,6 +9,8 @@ ACrossbow::ACrossbow()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CrossBow = CreateDefaultSubobject<UStaticMeshComponent>("CrossBow");
+
 }
 
 // Called when the game starts or when spawned
@@ -25,7 +27,7 @@ void ACrossbow::Tick(float DeltaTime)
 
 }
 
-// void AAssaultRifle::PullTrigger(class AMyCharacter* Character)
-// {	
-// 	AmmoCalculations(Character);
-// }
+void ACrossbow::ArrowCalculations()
+{
+	Arrow = GetWorld()->SpawnActor<AProjectile>(ArrowClass);
+}

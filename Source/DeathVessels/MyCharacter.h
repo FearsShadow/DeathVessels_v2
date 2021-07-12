@@ -32,6 +32,7 @@ struct FInteractionData
 };
 
 class AAssaultRifle;
+class ACrossbow;
 class AHatchet;
 class AFloor;
 class UPhysicsHandleComponent;
@@ -41,7 +42,6 @@ class DEATHVESSELS_API AMyCharacter : public ACharacter, public IMyInterface
 	GENERATED_BODY()
 
 public:	
-
 //building
 
 	//virtual void InteractPure() override;
@@ -87,6 +87,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 	bool SwingAxe = false;
 
+	UPROPERTY(Replicated, BlueprintReadWrite)
+	bool IsCrossBow = false;
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool IsAR = false;
@@ -99,6 +101,9 @@ public:
 	
 	UPROPERTY(Replicated)
 	AHatchet* Hatchet;
+
+	UPROPERTY(Replicated)
+	ACrossbow* CrossBow;
 
 	UFUNCTION(BlueprintPure)
 	bool IsDead() const;
@@ -200,12 +205,8 @@ private:
 	void StartJump();
 	void JumpEndAnim();
 
-	UFUNCTION(Server, Unreliable)
-	void ServerWeapon1();
-
-	UFUNCTION(Server, Unreliable)
-	void ServerWeapon2();
-
+	UFUNCTION(Server, Unreliable, BlueprintCallable)
+	void ServerPlayerToolbar(const FKey Key, const FString& ToolName);
 
 	UFUNCTION(Server, Unreliable)
 	void ServerGrab();
@@ -337,6 +338,9 @@ private:
 	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AAssaultRifle> GunClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ACrossbow> CrossBowClass;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AFloor> FloorClass;

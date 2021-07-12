@@ -5,13 +5,10 @@
 #include "Floor.h"
 #include "Hatchet.h"
 #include "AssaultRifle.h"
+#include "Crossbow.h"
 #include "Components/CapsuleComponent.h"
 #include "InteractionComponent.h"
 #include "Net/UnrealNetwork.h"
-
-
-
-
 
 
 
@@ -244,8 +241,8 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompone
 	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Released, this, &AMyCharacter::FireReleased);
 	PlayerInputComponent->BindAction(TEXT("Reload"), EInputEvent::IE_Pressed, this, &AMyCharacter::Reload);
 
-	PlayerInputComponent->BindAction(TEXT("Weapon1"), EInputEvent::IE_Pressed, this, &AMyCharacter::ServerWeapon1);
-	PlayerInputComponent->BindAction(TEXT("Weapon2"), EInputEvent::IE_Pressed, this, &AMyCharacter::ServerWeapon2);
+//	PlayerInputComponent->BindAction(TEXT("Weapon1"), EInputEvent::IE_Pressed, this, &AMyCharacter::ServerWeapon1);
+//	PlayerInputComponent->BindAction(TEXT("Weapon2"), EInputEvent::IE_Pressed, this, &AMyCharacter::ServerWeapon1);
 }
 void AMyCharacter::GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & OutLifetimeProps) const
 {
@@ -255,6 +252,7 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & Out
 	DOREPLIFETIME(AMyCharacter, XInput);
 	DOREPLIFETIME(AMyCharacter, IsHatchet);
 	DOREPLIFETIME(AMyCharacter, IsAR);
+	DOREPLIFETIME(AMyCharacter, IsCrossBow);
 	DOREPLIFETIME(AMyCharacter, AR);
 	DOREPLIFETIME(AMyCharacter, Hatchet)
 	DOREPLIFETIME(AMyCharacter, WalkSpeed);
@@ -311,6 +309,7 @@ void AMyCharacter::YMovement(float AxisValue)
 
 void AMyCharacter::Sprint()
 {
+	
 	if(!HasAuthority())
 	{
 		ServerSprint();
@@ -338,61 +337,88 @@ void AMyCharacter::SprintRelease()
 	WalkSpeed = 0.6;
 }
 //Weapon Switching
-void AMyCharacter::ServerWeapon1_Implementation()
+void AMyCharacter::ServerPlayerToolbar_Implementation(const FKey Key, const FString& ToolName)
 {
-	if (IsAR == false && IsHatchet == false && IsGrabbing == false && PlayerIsJumping == false)
+	//if the key has been pressed twice then it resets
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("%s Key"), *Key.ToString()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("%s itemname"), *ToolName));
+	//this is going to need to check tool name later.
+	
+	if (IsGrabbing != false || PlayerIsJumping != false){return;}
+
+//basically instead of the if statements have a hardcoded variable it would be Toolname and then finding a way to spawn that efficently
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("BOTH FALSE?")));
+	if(Key.ToString() == "One" && IsAR == false)
 	{
 		AR = GetWorld()->SpawnActor<AAssaultRifle>(GunClass);
 		AR->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("hand_r"));
 		AR->SetOwner(this);
 		IsAR = true;
-		
+		if(Hatchet != nullptr)
+		{
+			Hatchet->Destroy();
+			IsHatchet = false;
+		}
+		else if(CrossBow != nullptr)
+		{
+			CrossBow->Destroy();
+			IsCrossBow = false;
+		}
 	}
-	else if (IsAR == true && PlayerIsJumping == false )
-	{
-		AR->Destroy();
-		IsAR = false;
-		
-	}
-	else if (IsHatchet == true && PlayerIsJumping == false)
-	{
-		Hatchet->Destroy();
-		IsHatchet = false;
-		ServerWeapon1();
-		
-	}
-	
-	if(IsAR == true || IsHatchet == true)
-	{
-		ReleaseDrop();
-	}
-}
-
-void AMyCharacter::ServerWeapon2_Implementation()
-{
-	//might have some issues without having isgrabbing and player is jumping replicated
-	if (IsAR == false && IsHatchet == false && IsGrabbing == false && PlayerIsJumping == false)
+	else if(Key.ToString() == "Two" && IsHatchet == false)
 	{
 		Hatchet = GetWorld()->SpawnActor<AHatchet>(HatchetClass);
 		Hatchet->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("HatchetSocket"));
 		Hatchet->SetOwner(this);
 		IsHatchet = true;
-		
+		if(AR != nullptr)
+		{
+			AR->Destroy();
+			IsAR = false;
+		}
+		else if(CrossBow != nullptr)
+		{
+			CrossBow->Destroy();
+			IsCrossBow = false;
+		}
+	}
+	else if(Key.ToString() == "Three" && IsCrossBow == false)
+	{
+		CrossBow = GetWorld()->SpawnActor<ACrossbow>(CrossBowClass);
+		CrossBow->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("hand_r"));
+		CrossBow->SetOwner(this);
+		IsCrossBow = true;
+		if(AR != nullptr)
+		{
+			AR->Destroy();
+			IsAR = false;
+		}
+		else if(Hatchet != nullptr)
+		{
+			Hatchet->Destroy();
+			Hatchet = false;
+		}
+	}
+	else if (IsAR == true && PlayerIsJumping == false && AR != nullptr)
+	{
+		AR->Destroy();
+		IsAR = false;
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("AR")));
 	}
 	else if (IsHatchet == true && PlayerIsJumping == false && Hatchet != nullptr)
 	{
 		Hatchet->Destroy();
 		IsHatchet = false;
-		
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("HATCHET")));
 	}
-	//switches between weapons
-	else if (IsAR == true && PlayerIsJumping == false && AR != nullptr)
+	else if (IsCrossBow == true && PlayerIsJumping == false && CrossBow != nullptr)
 	{
-		AR->Destroy();
-		IsAR = false;
-		ServerWeapon2();
+		CrossBow->Destroy();
+		IsCrossBow = false;
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("CrossBow")));
 	}
-	
+
 	if(IsAR == true || IsHatchet == true)
 	{
 		ReleaseDrop();
@@ -420,7 +446,6 @@ void AMyCharacter::Fire()
 		{
 			//do check for ammon in fire
 			AmmoCalculations(this, AR);
-			//AR->AmmoCalculations(this);
 		}
 		if(!HasAuthority() && !IsReloading || IsPlayerControlled() == false)
 		{

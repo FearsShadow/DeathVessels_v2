@@ -4,35 +4,30 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Projectile.h"
-#include "Crossbow.generated.h"
-
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Projectile.generated.h"
 
 UCLASS()
-class DEATHVESSELS_API ACrossbow : public AActor
+class DEATHVESSELS_API AProjectile : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ACrossbow();
+	AProjectile();
 
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 private:
-	void ProjectileSetup();
-
-	TSubclassOf<AProjectile> ArrowClass;
+	// Called every frame
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* ArrowMesh;
 
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* CrossBow;
-	
-	class AProjectile* Arrow;
+	UProjectileMovementComponent* ArrowProjectileMovement;
 
-	void ArrowCalculations();
-	// void PullTrigger(class AMyCharacter* Character);
+	void ProjectileSetup();
 };
