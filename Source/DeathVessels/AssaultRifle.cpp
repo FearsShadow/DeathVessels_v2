@@ -23,16 +23,21 @@ void AAssaultRifle::BeginPlay()
 }
 //turn to interface
 
-void AAssaultRifle::MulticastBullet_Implementation(FVector FlashLocation, FVector End, bool Hit)
+void AAssaultRifle::MulticastBullet_Implementation(FVector FlashLocation, FVector End, bool ACharacterHit, AActor* ActorHit)
 {
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, MuzzleFlashLocation);
-	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ShotFired, MuzzleFlashLocation);
-	if(Hit)
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, FlashLocation);
+	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ShotFired, FlashLocation);
+	if(ACharacterHit)
 	{
 		//Possible Bug with Bullet_Miss as I set a limit to amount being played under the base sound then pressed edit and then under concurrency
-		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ShotHit, MuzzleFlashLocation);
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ShotHit, FlashLocation);
 	}
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, End, FRotator(0,0,0));
+
+	if(ActorHit != nullptr)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, End, FRotator(0,0,0));
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *End.ToString())
+	}
 	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ShotMiss, End);
 }
 
@@ -82,7 +87,7 @@ void AAssaultRifle::Bullet()
 
 		if(HasAuthority())
 		{
-			MulticastBullet(MuzzleFlashLocation, OutHit.Location, CharacterHit);
+			MulticastBullet(MuzzleFlashLocation, OutHit.Location, CharacterHit, OutHit.GetActor());
 		}
 		
 }

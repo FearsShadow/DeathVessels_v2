@@ -15,6 +15,9 @@ class DEATHVESSELS_API AProjectile : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AProjectile();
+	
+	UFUNCTION(Server, unreliable)
+	void ServerProjectileSetup(const FVector& ShotDirection, const FVector& StartLocation, const FRotator& StartRotation);
 
 	virtual void Tick(float DeltaTime) override;
 protected:
@@ -29,5 +32,4 @@ private:
 	UPROPERTY(EditAnywhere)
 	UProjectileMovementComponent* ArrowProjectileMovement;
 
-	void ProjectileSetup();
 };

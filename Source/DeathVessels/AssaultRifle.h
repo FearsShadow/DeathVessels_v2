@@ -20,7 +20,7 @@ public:
 	AAssaultRifle();
 	
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastBullet(FVector FlashLocation, FVector End, bool Hit);
+	void MulticastBullet(FVector FlashLocation, FVector End, bool ACharacterHit, AActor* ActorHit);
 
 	void Bullet();
 	

@@ -26,11 +26,19 @@ AMyCharacter::AMyCharacter()
 
 	Handle = CreateDefaultSubobject<UPhysicsHandleComponent>("Handle");
 
+	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
+	//Camera->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform,FName("head"));
+	//Camera->SetRelativeLocation(FVector(-0.425029,14.999564,0.481481));
+
+	
+
 	InteractionCheckFrequency = 0;
 	InteractionCheckDistance = 1000;	
 
 	ArrayValues();
 }
+
+
 void AMyCharacter::ArrayValues()
 {
 	//To calculate location it's just using absolute location and then subtracting the values
@@ -128,16 +136,16 @@ void AMyCharacter::ArrayValues()
 }
 
 
-
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
 	Ammo = 25;
 	InteractPure();
+
 	PlayerCapsule = this->GetCapsuleComponent();
 	PlayerCapsule->GetScaledCapsuleSize(OutRadius, OutHalfHeight);
-	
+
 	
 	if(Waves != nullptr)
 	{
@@ -169,7 +177,7 @@ void AMyCharacter::Tick(float DeltaTime)
 	
 	if(GetController() != nullptr)
 	{
-		if(AllowBuilding || Handle->GetGrabbedComponent() != nullptr)
+		if(AllowBuilding || Handle->GetGrabbedComponent() != nullptr || IsCrossBow)
 		{
 			GetController()->GetPlayerViewPoint(PlacementLocation, PlacementRotation);
 			LineTraceEnd = (PlacementLocation + PlacementRotation.Vector() * 600);
@@ -254,6 +262,7 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & Out
 	DOREPLIFETIME(AMyCharacter, IsAR);
 	DOREPLIFETIME(AMyCharacter, IsCrossBow);
 	DOREPLIFETIME(AMyCharacter, AR);
+	DOREPLIFETIME(AMyCharacter, CrossBow);
 	DOREPLIFETIME(AMyCharacter, Hatchet)
 	DOREPLIFETIME(AMyCharacter, WalkSpeed);
 	DOREPLIFETIME(AMyCharacter, Health);
@@ -348,7 +357,7 @@ void AMyCharacter::ServerPlayerToolbar_Implementation(const FKey Key, const FStr
 	if (IsGrabbing != false || PlayerIsJumping != false){return;}
 
 //basically instead of the if statements have a hardcoded variable it would be Toolname and then finding a way to spawn that efficently
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("BOTH FALSE?")));
+
 	if(Key.ToString() == "One" && IsAR == false)
 	{
 		AR = GetWorld()->SpawnActor<AAssaultRifle>(GunClass);
@@ -404,25 +413,31 @@ void AMyCharacter::ServerPlayerToolbar_Implementation(const FKey Key, const FStr
 	{
 		AR->Destroy();
 		IsAR = false;
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("AR")));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("AR Destroyed")));
 	}
 	else if (IsHatchet == true && PlayerIsJumping == false && Hatchet != nullptr)
 	{
 		Hatchet->Destroy();
 		IsHatchet = false;
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("HATCHET")));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("HATCHET Destroyed")));
 	}
 	else if (IsCrossBow == true && PlayerIsJumping == false && CrossBow != nullptr)
 	{
 		CrossBow->Destroy();
 		IsCrossBow = false;
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("CrossBow")));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("CrossBow Destroyed")));
 	}
 
 	if(IsAR == true || IsHatchet == true)
 	{
 		ReleaseDrop();
 	}
+
+	//so Crossbow does get to hear
+	// if(CrossBow != nullptr)
+	// {
+	// 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("CrossBow still here")));
+	// }
 }
 
 void AMyCharacter::ServerFire_Implementation(int32 Bullets)
@@ -431,25 +446,35 @@ void AMyCharacter::ServerFire_Implementation(int32 Bullets)
 	{
 		AR->Bullet();
 	}
+	else
+	{
+		//pass in the bone location here
+		CrossBow->ArrowCalculations(Camera->GetForwardVector(), PlacementLocation, PlacementRotation);
+		
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("ammo %i"), Bullets)
 	--Bullets;
+	
 
 }
 
 void AMyCharacter::Fire()
 {
 	IsFireHeld = true;
-	
+	if(CrossBow != nullptr|| AR != nullptr)
+	{
+		if(!HasAuthority() && !IsReloading || IsPlayerControlled() == false)
+		{
+			ServerFire(BulletsInMag);
+		}
+	}
+
 	if(BulletsInMag > 0 && IsAR)
 	{
 		if (!IsReloading || IsPlayerControlled() == false && AR != nullptr)
 		{
-			//do check for ammon in fire
 			AmmoCalculations(this, AR);
-		}
-		if(!HasAuthority() && !IsReloading || IsPlayerControlled() == false)
-		{
-			ServerFire(BulletsInMag);
 		}
 		else if(AR == nullptr)
 		{

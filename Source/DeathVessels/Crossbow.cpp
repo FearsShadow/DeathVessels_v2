@@ -10,6 +10,7 @@ ACrossbow::ACrossbow()
 	PrimaryActorTick.bCanEverTick = true;
 
 	CrossBow = CreateDefaultSubobject<UStaticMeshComponent>("CrossBow");
+	SetRootComponent(CrossBow);
 
 }
 
@@ -27,7 +28,11 @@ void ACrossbow::Tick(float DeltaTime)
 
 }
 
-void ACrossbow::ArrowCalculations()
+void ACrossbow::ArrowCalculations(const FVector& ShotDirection, const FVector& StartLocation, const FRotator& StartRotation)
 {
+	
 	Arrow = GetWorld()->SpawnActor<AProjectile>(ArrowClass);
+	Arrow->ServerProjectileSetup(ShotDirection, StartLocation, StartRotation);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("server Arrow check")));
+	UE_LOG(LogTemp, Warning, TEXT("Arrow spawn"))
 }

@@ -6,7 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Inventory.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
-#include"MyInterface.h"
+#include "MyInterface.h"
+#include "Camera/CameraComponent.h"
 #include "MyCharacter.generated.h"
 
 USTRUCT()
@@ -36,6 +37,7 @@ class ACrossbow;
 class AHatchet;
 class AFloor;
 class UPhysicsHandleComponent;
+class UCameraComponent;
 UCLASS()
 class DEATHVESSELS_API AMyCharacter : public ACharacter, public IMyInterface
 {
@@ -323,6 +325,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UPhysicsHandleComponent* Handle;
+
+	UPROPERTY(EditAnywhere)
+	UCameraComponent* Camera;
 
 	bool LandScapeHit;
 
