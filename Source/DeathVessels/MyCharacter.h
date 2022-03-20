@@ -8,6 +8,7 @@
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "MyInterface.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "MyCharacter.generated.h"
 
 USTRUCT()
@@ -37,7 +38,7 @@ class ACrossbow;
 class AHatchet;
 class AFloor;
 class UPhysicsHandleComponent;
-class UCameraComponent;
+
 UCLASS()
 class DEATHVESSELS_API AMyCharacter : public ACharacter, public IMyInterface
 {
@@ -45,6 +46,8 @@ class DEATHVESSELS_API AMyCharacter : public ACharacter, public IMyInterface
 
 public:	
 //building
+	UPROPERTY(EditAnywhere)
+	class UCameraComponent* Camera;
 
 	//virtual void InteractPure() override;
 
@@ -178,7 +181,7 @@ private:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(Server, Unreliable)
-	void ServerFire(int32 Bullets);
+	void ServerFire(int32 Bullets, FVector ForwardVector);
 	
 	UFUNCTION(Server, Unreliable)
 	void ServerHealthPercentage() const;
@@ -324,10 +327,12 @@ private:
 	USceneComponent* GrabLocation;
 
 	UPROPERTY(EditAnywhere)
-	UPhysicsHandleComponent* Handle;
+	class UPhysicsHandleComponent* Handle;
+
+
 
 	UPROPERTY(EditAnywhere)
-	UCameraComponent* Camera;
+	class USpringArmComponent* SpringArm;
 
 	bool LandScapeHit;
 

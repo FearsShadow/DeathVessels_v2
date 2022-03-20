@@ -22,23 +22,18 @@ AMyCharacter::AMyCharacter()
 	Health = MaxHealth;
 	// ...
 
-	InventoryTest = CreateDefaultSubobject<UInventoryTest>("InventoryTest");
+	InventoryTest = CreateDefaultSubobject<UInventoryTest>(TEXT("InventoryTest"));
 
-	Handle = CreateDefaultSubobject<UPhysicsHandleComponent>("Handle");
-
-	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
-	//Camera->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform,FName("head"));
-	//Camera->SetRelativeLocation(FVector(-0.425029,14.999564,0.481481));
-
+	Handle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("Handle"));
 	
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(GetMesh(), FName("head"));
 
 	InteractionCheckFrequency = 0;
 	InteractionCheckDistance = 1000;	
 
 	ArrayValues();
 }
-
-
 void AMyCharacter::ArrayValues()
 {
 	//To calculate location it's just using absolute location and then subtracting the values
@@ -140,12 +135,20 @@ void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if(Camera->HasAnySockets() && Camera != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("has sockets"))
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No socket"))
+	}
 	Ammo = 25;
 	InteractPure();
 
 	PlayerCapsule = this->GetCapsuleComponent();
 	PlayerCapsule->GetScaledCapsuleSize(OutRadius, OutHalfHeight);
-
+	
 	
 	if(Waves != nullptr)
 	{
@@ -185,8 +188,8 @@ void AMyCharacter::Tick(float DeltaTime)
 			GetWorld()->LineTraceSingleByChannel(OutHit, PlacementLocation, LineTraceEnd, ECC_Visibility, TraceParams);
 		}
 	}
-	
-	
+
+
 	if (Handle->GetGrabbedComponent() != nullptr)
 	{
 		//testing
@@ -255,7 +258,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompone
 void AMyCharacter::GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
+
 	DOREPLIFETIME(AMyCharacter, YInput);
 	DOREPLIFETIME(AMyCharacter, XInput);
 	DOREPLIFETIME(AMyCharacter, IsHatchet);
@@ -440,7 +443,7 @@ void AMyCharacter::ServerPlayerToolbar_Implementation(const FKey Key, const FStr
 	// }
 }
 
-void AMyCharacter::ServerFire_Implementation(int32 Bullets)
+void AMyCharacter::ServerFire_Implementation(int32 Bullets, FVector ForwardVector)
 {
 	if(Bullets > 0 )
 	{
@@ -448,12 +451,11 @@ void AMyCharacter::ServerFire_Implementation(int32 Bullets)
 	}
 	else
 	{
-		//pass in the bone location here
-		CrossBow->ArrowCalculations(Camera->GetForwardVector(), PlacementLocation, PlacementRotation);
+		//pass in info from the client to the server about the camera maybe.
+		CrossBow->ArrowCalculations(ForwardVector, Camera->GetComponentLocation(), PlacementRotation);
 		
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("ammo %i"), Bullets)
+	// UE_LOG(LogTemp, Warning, TEXT("ammo %i"), Bullets)
 	--Bullets;
 	
 
@@ -466,7 +468,9 @@ void AMyCharacter::Fire()
 	{
 		if(!HasAuthority() && !IsReloading || IsPlayerControlled() == false)
 		{
-			ServerFire(BulletsInMag);
+
+		ServerFire(BulletsInMag, Camera->GetForwardVector());
+
 		}
 	}
 

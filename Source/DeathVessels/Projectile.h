@@ -20,6 +20,7 @@ public:
 	void ServerProjectileSetup(const FVector& ShotDirection, const FVector& StartLocation, const FRotator& StartRotation);
 
 	virtual void Tick(float DeltaTime) override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -31,5 +32,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UProjectileMovementComponent* ArrowProjectileMovement;
-
+	
+	FHitResult ProjectileHit;
 };
