@@ -77,6 +77,7 @@ void AAssaultRifle::Bullet()
 
 				FPointDamageEvent DamageEvent(DamageAmount, OutHit, -Rotation.Vector(), nullptr);
 				HitActor->TakeDamage(DamageAmount, DamageEvent, OwnerPawn->GetController(), this);
+				 	
 			}
 			
 		}
@@ -94,7 +95,7 @@ void AAssaultRifle::Bullet()
 
 void AAssaultRifle::AmmoCalculations(class AMyCharacter* Character)
 {	
-	//APawn* PlayerPawn = Cast<APawn>(GetOwner());
+	APawn* PlayerPawn = Cast<APawn>(GetOwner());
 	//Basicaly should be looking to see if it is a assault rifle equipped or not
     UE_LOG(LogTemp, Warning, TEXT("You got ammo calculations working"))
 	if(Character->BulletsInMag > 0 ) 
@@ -103,10 +104,10 @@ void AAssaultRifle::AmmoCalculations(class AMyCharacter* Character)
 		Bullet();
 		Character->BulletsInMag -= BulletShot;
     }
-	// else if(PlayerPawn->IsPlayerControlled() == false )
-	// {
-	// 	AR->Bullet();
-	// }
+	else if(PlayerPawn->IsPlayerControlled() == false )
+	{
+		Bullet();
+	}
 }
 
 

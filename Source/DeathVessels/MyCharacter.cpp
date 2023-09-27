@@ -160,12 +160,12 @@ void AMyCharacter::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Floorclass is nullptr"))
 	}
 	//need a better check here for ai
-	// if (IsPlayerControlled() == false)
-	// {
-	// 	AR = GetWorld()->SpawnActor<AAssaultRifle>(GunClass);
-	// 	AR->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("hand_r"));
-	// 	AR->SetOwner(this);
-	// }
+	if (IsPlayerControlled() == false)
+	{
+		AR = GetWorld()->SpawnActor<AAssaultRifle>(GunClass);
+		AR->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("hand_r"));
+		AR->SetOwner(this);
+	}
 
 	TraceParams.AddIgnoredActor(this);
 	
@@ -445,13 +445,14 @@ void AMyCharacter::ServerPlayerToolbar_Implementation(const FKey Key, const FStr
 
 void AMyCharacter::ServerFire_Implementation(int32 Bullets, FVector ForwardVector)
 {
-	if(Bullets > 0 )
+	if(Bullets > 0 || IsPlayerControlled() == false)
 	{
 		AR->Bullet();
 	}
-	else
+	else if(CrossBow != nullptr)
 	{
 		//pass in info from the client to the server about the camera maybe.
+		
 		CrossBow->ArrowCalculations(ForwardVector, Camera->GetComponentLocation(), PlacementRotation);
 		
 	}
@@ -463,19 +464,21 @@ void AMyCharacter::ServerFire_Implementation(int32 Bullets, FVector ForwardVecto
 
 void AMyCharacter::Fire()
 {
+	// else if (Isplayed)
 	IsFireHeld = true;
 	if(CrossBow != nullptr|| AR != nullptr)
 	{
-		if(!HasAuthority() && !IsReloading || IsPlayerControlled() == false)
+		if(!HasAuthority() && !IsReloading || IsPlayerControlled() == true)
 		{
-
-		ServerFire(BulletsInMag, Camera->GetForwardVector());
+			
+			ServerFire(BulletsInMag, Camera->GetForwardVector());
 
 		}
 	}
 
 	if(BulletsInMag > 0 && IsAR)
 	{
+		
 		if (!IsReloading || IsPlayerControlled() == false && AR != nullptr)
 		{
 			AmmoCalculations(this, AR);
@@ -534,6 +537,7 @@ void AMyCharacter::LeftClick()
 	{
 		ReleaseDrop();
 	}
+	
 }
 	
 void AMyCharacter::Reload()
@@ -769,14 +773,14 @@ float AMyCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const &Da
 	int32 DamageApplied = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	DamageApplied = FMath::Min(Health, DamageApplied);
 	Health -= DamageApplied;
-	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("here %i"), DamageApplied));
 	if (IsDead())
 	{
 		DetachFromControllerPendingDestroy();
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Destroy();
 	}
-	UE_LOG(LogTemp, Warning, TEXT("%i"), Health)
+	 	UE_LOG(LogTemp, Warning, TEXT("%i"), Health)
 	return DamageApplied;
 }
 

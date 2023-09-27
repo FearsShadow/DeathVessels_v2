@@ -25,18 +25,23 @@ void AAiCharacter::GetThePlayer()
 {
 
     APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), PlayerID);
-
-    if(LineOfSightTo(Player))
+    FVector ActorLocation = Player->GetActorLocation();
+    int32 Distance = FVector::Dist(ActorLocation, GetPawn()->GetActorLocation()); 
+    
+    if(LineOfSightTo(Player) && Distance < 2000)
     {   
-        FVector ActorLocation = Player->GetActorLocation();
+
+        
         if(AllowFiring)
         {
             //Looks for capsule component
             GetWorld()->GetTimerManager().SetTimer(PatrolWaitDelay, this, &AAiCharacter::AIFire, 0.65, true);
+            
         }    
         SetFocus(Player);
         MoveToActor(Player, Radius, false);
         MoveToLocation(ActorLocation, 5, false);
+        
         AllowPatrol = true;
         AllowFiring = false;
 

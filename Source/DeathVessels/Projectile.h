@@ -7,6 +7,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Projectile.generated.h"
 
+class UProjectileMovementComponent;
+
 UCLASS()
 class DEATHVESSELS_API AProjectile : public AActor
 {
@@ -21,6 +23,9 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere)
+	UProjectileMovementComponent* ArrowProjectileMovement;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -30,8 +35,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* ArrowMesh;
 
-	UPROPERTY(EditAnywhere)
-	UProjectileMovementComponent* ArrowProjectileMovement;
+
 	
 	FHitResult ProjectileHit;
 };

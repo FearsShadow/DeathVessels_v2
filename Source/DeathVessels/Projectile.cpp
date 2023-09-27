@@ -15,8 +15,8 @@ AProjectile::AProjectile()
 	ArrowProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>("ArrowProjectileMovement");
 
 	//may need to use this for network smoothing reasons bInterpMovement
-	ArrowProjectileMovement->InitialSpeed = 1000.0f;
-    ArrowProjectileMovement->MaxSpeed = 1000.0f;
+	ArrowProjectileMovement->InitialSpeed = 3000.0f;
+    ArrowProjectileMovement->MaxSpeed = 5000.0f;
     ArrowProjectileMovement->bRotationFollowsVelocity = true;
     // ArrowProjectileMovement->bShouldBounce = true;
     // ArrowProjectileMovement->Bounciness = 0.3f;
@@ -42,12 +42,12 @@ void AProjectile::Tick(float DeltaTime)
 void AProjectile::ServerProjectileSetup_Implementation(const FVector& ShotDirection, const FVector& StartLocation, const FRotator& StartRotation)
 {		
 	
-	float SubTickTimeRemaining;
+	
 	UE_LOG(LogTemp, Warning, TEXT("%s ShotDirection"), *ShotDirection.ToString())
 	ArrowMesh->SetRelativeLocation(FVector(90,90, 100) * ShotDirection + StartLocation);
 	ArrowProjectileMovement->Velocity = ShotDirection * ArrowProjectileMovement->InitialSpeed;
 	//float not working?
-	ArrowProjectileMovement->HandleBlockingHit(ProjectileHit, ArrowProjectileMovement->PreviousHitTime, ArrowProjectileMovement->ComputeMoveDelta(ArrowProjectileMovement->Velocity,1), SubTickTimeRemaining);
+	// ArrowProjectileMovement->HandleBlockingHit(ProjectileHit, ArrowProjectileMovement->PreviousHitTime, ArrowProjectileMovement->ComputeMoveDelta(ArrowProjectileMovement->Velocity,1), float SubTickTimeRemaining);
 	
 }
 
